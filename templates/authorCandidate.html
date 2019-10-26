@@ -2,7 +2,32 @@
 # content for author candidate
 # name, email, staff type
 {% block content %}
+<div class="col-md-10"  style=" margin-top:20px; margin-left: 60px;" >
+<table id="example" class="table table-striped table-bordered">
+    <thead>
+            <tr>
+                <th>Name</th>
+                <th>Type</th>
+                <th>Email</th>
+            </tr>
+    </thead>
+    <tbody>
+        {% for dic in res.values %}
+        <tr>
+            <td>{{ dic.name }}</td>
+            <td>{{ dic.staffType}}</td>
+            <td>{{ dic.email}}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+</div>
 
+    <script>
+
+    $('#example').DataTable();
+
+    </script>
 
     
 {% endblock %}
