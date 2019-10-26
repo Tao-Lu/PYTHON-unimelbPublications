@@ -1,7 +1,12 @@
-{% extends base.html %}
+{% extends 'base.html' %}
 # content for paper details
 # title, year, CIS author, all author, cited count, paper type, full abstract
 {% block content %}
+    <ul>
+        <li>
+            {{paperdetailsDict}}
+        </li>
+    </ul>
 
 
     
