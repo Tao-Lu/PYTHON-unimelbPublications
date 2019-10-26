@@ -23,4 +23,7 @@ urlpatterns = [
     path(r'', views.homepage),
     path(r'homepage/', views.homepage, name='homepage'),
     re_path(r'^authorCandidate/(.+)$',views.authorcandidate)
+    path(r'overview/', views.overview, name='overview'),
+    #path(r'paperdetails/(?P<paperId>\d*)$', views.paperDetails, name='paperdetails')
+    path(r'paperdetails/', views.paperDetails, name='paperdetails')
 ]
