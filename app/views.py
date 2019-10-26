@@ -14,7 +14,7 @@ return redirect("https://blog.csdn.net/miaoqinian")
 
 # Unimelb Publicatino Homepage
 def homepage(request):
-    return HttpResponse("OK")
-# render(request, 'homePage.html')
+    #return HttpResponse("OK")
+    return render(request, 'homePage.html')
 
 
