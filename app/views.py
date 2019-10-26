@@ -21,25 +21,29 @@ def homepage(request):
     return render(request, 'base.html')
 
 
-def authorcandidate (request):
-    url = "http://45.113.234.42:5984/staffinfo_scopus/_design/search/_view/searchByName"
-    couch = couchdb.Server("http://admin:password@http://45.113.234.42:5984")
+def authorcandidate (request, searchstr):
+    url = "http://127.0.0.1/staffinfo_scopus/_design/search/_view/searchByName"
+    couch = couchdb.Server("http://jingjing:Jing1201@127.0.0.1:5984")
     db = couch['staffinfo_scopus']
-    dataRaw = requests.get(url)
+    headers = {
+        'Connection': 'close',
+    }
+    dataRaw = requests.get(url, headers=headers)
     data = dataRaw.json()
     dataRow = data["rows"]
     result = {}
     ids = []
     for row in dataRow:
-        if request in row["key"]:
+        if searchstr in row["key"]:
             ids.append(row["value"])
-
-    for pid in ids:
-        dic = {}
-        docDetail = db.get(pid)
-        dic["name"] = docDetail["fullName"]
-        dic["email"] = docDetail["email"]
-        dic["staffType"] = docDetail["staffType"]
-        result[pid] = dic
+    if ids:
+        for pid in ids:
+            dic = {}
+            docDetail = db.get(pid)
+            dic["name"] = docDetail["fullName"]
+            dic["email"] = docDetail["email"]
+            dic["staffType"] = docDetail["staffType"]
+            result[pid] = dic
+    print(searchstr)
 
     return render(request, 'authorCandidate.html', {'res':json.dumps(result)})
