@@ -1,0 +1,75 @@
+{% extends 'base.html' %}
+# content for paper details
+# title, year, CIS author, all author, cited count, paper type, full abstract
+{% block content %}
+
+    <title>Paper Details</title>
+
+    <div id="paperDetails" style="margin: 10px; padding: 10px;">
+
+        <h2 id="title">
+            {{paperdetailsDict.title}}
+        </h2>
+        <h4 id="year">
+            Published Year: {{paperdetailsDict.coverDateYear}}
+        </h4>
+        <section id="authorlist">
+            <ul id="cisauthorlist" >
+                <h5>
+                    CIS Author(s)
+                </h5>
+                {% for cisAuthor in paperdetailsDict.CISAuthors %}
+                    <!--can be clicked-->
+{#                    <li style="display: inline-block">#}
+                    <li id={{ cisAuthor.id }} class="cisauthor">
+                        {{ cisAuthor.name }}
+                    </li>
+                {% endfor %}
+            </ul>
+
+            <ul id="coauthorlist">
+                <h5>
+                    All Author(s)
+                </h5>
+                {% for coAuthor in paperdetailsDict.co_author %}
+                    <!--cannot be clicked-->
+                    <li>
+                        <span>{{ coAuthor.id }}</span>
+                        <span>{{ coAuthor.name }}</span>
+                        <span>{{ coAuthor }}</span>
+                    </li>
+                {% endfor %}
+            </ul>
+        </section>
+        <h6 id="citedCount">
+            cited count: {{paperdetailsDict.cite_count}}
+        </h6>
+        <h6 id="paperType">
+            paper type: {{paperdetailsDict.paper_type}}
+        </h6>
+        <hr style="height: 2px; border: none; border-top: 2px dashed #185598;" />
+        <h5>Abstract</h5>
+        <p id="abstract">
+            {{paperdetailsDict.abstract}}
+        </p>
+
+    </div>
+
+    <script>
+
+        $(document).ready(function(){
+            $('.cisauthor').on('click', function () {
+                var authorId = $(this).attr('id');
+                var host = location.host;
+                var url = "http://" + host + "/authorDetails/" + authorId;
+                window.location.href = url;
+            });
+        });
+
+
+
+
+
+    </script>
+
+{% endblock %}

@@ -1,0 +1,46 @@
+{% extends 'base.html' %}
+# content for author candidate
+# name, email, staff type
+{% block css %}
+    .pointer {cursor: pointer;}
+{% endblock %}
+{% block content %}
+    <h2 style="margin-left:65px"> search result for : {{ searchstr}}</h2>
+<div class="col-md-10"  style=" margin-top:20px; margin-left: 60px; margin-bottom: 20px" >
+<table id="example" class="table table-striped table-bordered">
+    <thead>
+            <tr>
+                <th>Name</th>
+                <th>Type</th>
+                <th>Email</th>
+            </tr>
+    </thead>
+    <tbody>
+        {% for dic in res.values%}
+        <tr class="dataRow" id={{ dic.id }}>
+            <td class="pointer">{{ dic.name }}</td>
+            <td>{{ dic.staffType}}</td>
+            <td>{{ dic.email}}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+</div>
+
+    <script>
+    $(document).ready(function() {
+        $('#example').DataTable();
+        $('#example_paginate').hide();
+        $('.dataRow').on('click', function () {
+            var scopusId = $(this).closest('tr').attr('id');
+            console.log(scopusId);
+            var host = location.host;
+            var url = "http://"+host+"/authorDetails/"+scopusId;
+            window.location.href = url;
+        });
+
+    });
+    </script>
+
+    
+{% endblock %}
