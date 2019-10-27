@@ -1,8 +1,44 @@
 {% extends 'base.html' %}
 # content for paper candidate
 # title, CIS author, year, partial abstract
+{% block css %}
+    .pointer {cursor: pointer;}
+    .paperResult{
+        text-decoration: underline;
+    }
+
+
+{% endblock %}
 {% block content %}
+    <div class="columns medium-10">
+        <h2 style="margin-left:65px; margin-top:20px"> search result for: {{ searchstr}}</h2>
+        <h6 style="margin-left:65px"> {{ size }} search results found for "{{ searchstr }}" in database. </h6>
+        <hr>
+        <div class="search-result col-md-10" style="margin-left:80px">
+            {% for item in res %}
+                <h3 class="paperResult pointer" style="margin-top: 10px" id={{ item.id }}>{{ item.title }}</h3>
+                <h5 style="margin-top:5px">{{ item.year }}</h5>
+                <p><b>CIS Authors:</b> {{ item.CisAuthor }}</p>
+                <h5>Abstract:</h5>
+                <p style="margin-bottom: 20px">{{ item.abstract }}...</p>
+                <h5 style="margin-bottom: 30px"><span class="badge badge-pill badge-dark">{{ item.type }}</span></h5>
+
+            {% endfor %}
+        </div>
+
+    </div>
+    <script>
+
+        $('.paperResult').on('click', function () {
+            var paperId = $(this).attr('id');
+            console.log(paperId);
+            var host = location.host;
+            var url = "http://"+host+"/paperDetails/"+paperId;
+            window.location.href = url;
+        });
+
+    </script>
+{% endblock %}
 
 
     
-{% endblock %}
