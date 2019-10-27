@@ -64,7 +64,7 @@ scopus = Scopus(key)
 
 
 #couch db
-couch=couchdb.Server("http://jingjing:Jing1201@localhost:5984")
+couch=couchdb.Server("http://admin:password@localhost:5984")
 try:
     database=couch["staffinfo_scopus"]
 except:
