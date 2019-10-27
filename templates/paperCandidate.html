@@ -27,17 +27,17 @@
         </div>
 
     </div>
-
     <script>
-    $(document).ready(function() {
+
         $('.paperResult').on('click', function () {
             var paperId = $(this).attr('id');
             console.log(paperId);
             var url = {% url 'homepage' %}
             window.location.href = url;
         });
-    });
+
     </script>
+{% endblock %}
+
 
     
-{% endblock %}
