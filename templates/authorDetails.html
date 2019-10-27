@@ -1,9 +1,71 @@
 {% extends 'base.html' %}
+{% load staticfiles  %}
 # content for author details
-# name, email, staff type, paper count, cited count, paper list (title)
+# name, orcid, email, staff type, paper count, cited count, paper list (title)
 # todo: add author photo
 {% block content %}
 
+    <title>Author Details</title>
+
+    <div class="container">
+        <div class="row">
+            <div id="authorDetails" style="padding: 10px; border-right: 2px dotted #000; border-style: solid; border-color: black; border-width: 10px" class="col-md-6">
+
+                <h2 id="name">
+                    {{authordetailsDict.fullName}}
+                </h2>
+                <h4 id="orcid">
+                    ORCID: {{authordetailsDict.orcid}}
+                </h4>
+                <h4 id="email">
+                    Email: {{authordetailsDict.email}}
+                </h4>
+                <h4 id="staffType">
+                    Staff Type: {{authordetailsDict.staffType}}
+                </h4>
+                <h4 id="paperCount">
+                    Document count: {{authordetailsDict.document_count}}
+                </h4>
+                <h4 id="citedCount">
+                    Cited By Count: {{authordetailsDict.cited_by_count}}
+                </h4>
+
+                <table id="paperlist" class="table table-striped table-bordered">
+                    <thead>
+                        <tr>
+                            <th>Title</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for paper in authordetailsDict.paperlist %}
+                            <tr class="dataRow" id={{ paper.id }}>
+                                <td class="pointer">{{ paper.title }}</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            <div id="authorRelationship" style="padding: 10px; border-left: 2px dotted #000;" class="col-md-6">
+                <img src="{% static 'res/background.jpg' %}" style="height: auto; max-width: 100%" class="img-responsive"/>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+    $(document).ready(function() {
+        $('#paperlist').DataTable();
+        {#$('#paperlist_paginate').hide();#}
+        $('.dataRow').on('click', function () {
+            var paperId = $(this).closest('tr').attr('id');
+            var host = location.host;
+            var url = "http://" + host + "/paperDetails/" + paperId;
+            window.location.href = url;
+        });
+
+    });
+    </script>
 
 
 {% endblock %}
