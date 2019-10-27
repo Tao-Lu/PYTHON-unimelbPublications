@@ -32,7 +32,8 @@
         $('.paperResult').on('click', function () {
             var paperId = $(this).attr('id');
             console.log(paperId);
-            var url = {% url 'homepage' %}
+            var host = location.host;
+            var url = "http://"+host+"/paperDetails/"+paperId;
             window.location.href = url;
         });
 

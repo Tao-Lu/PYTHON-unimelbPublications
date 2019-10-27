@@ -34,7 +34,8 @@
         $('.dataRow').on('click', function () {
             var scopusId = $(this).closest('tr').attr('id');
             console.log(scopusId);
-            var url = {% url 'homepage' %}
+            var host = location.host;
+            var url = "http://"+host+"/authorDetails/"+scopusId;
             window.location.href = url;
         });
 

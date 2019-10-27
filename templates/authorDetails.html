@@ -3,6 +3,14 @@
 # content for author details
 # name, orcid, email, staff type, paper count, cited count, paper list (title)
 # todo: add author photo
+{% block css %}
+    .pointer {cursor: pointer;}
+    .pointer{
+        text-decoration: underline;
+    }
+
+
+{% endblock %}
 {% block content %}
 
     <title>Author Details</title>
@@ -38,7 +46,7 @@
                     </thead>
                     <tbody>
                         {% for paper in authordetailsDict.paperlist %}
-                            <tr class="dataRow" id={{ paper.id }}>
+                            <tr class="dataRow pointer" id={{ paper.id }}>
                                 <td class="pointer">{{ paper.title }}</td>
                             </tr>
                         {% endfor %}
