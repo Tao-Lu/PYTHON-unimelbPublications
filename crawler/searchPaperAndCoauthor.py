@@ -3,6 +3,7 @@ from pyscopus import Scopus
 import couchdb
 
 key = '8088bb761a9b0680072b5eb79b89dff7'
+# key = '3f2462d7e1fabbb399a54d937b0bcfbf'
 scopus = Scopus(key)
 
 
@@ -112,7 +113,7 @@ def putOtherAuthorInDB (authorList):
 
 
 #couch db connection
-couch=couchdb.Server("http://jingjing:Jing1201@localhost:5984")
+couch=couchdb.Server("http://admin:password@localhost:5984")
 
 try:
     database=couch.create("paperinfo_scopus")

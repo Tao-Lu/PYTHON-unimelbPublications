@@ -1,8 +1,15 @@
 from django.http import HttpResponse
+from django.http import JsonResponse
 from django.shortcuts import render
 import requests
 import couchdb
 import json
+
+#const params
+
+BASE_URL = "http://45.113.234.42:5984/"
+COUNTRY_NUM = 15
+
 
 # Create your views here.
 
@@ -19,8 +26,57 @@ return redirect("https://blog.csdn.net/miaoqinian")
 def homepage(request):
     return render(request, 'homePage.html')
 
+#Utility Function for Overview:
+
+def getCountryList(countryList):
+    if(len(countryList) < COUNTRY_NUM):
+        return countryList
+    else:
+        countryList.sort(key=lambda x: x["value"], reverse=True)
+        rest = countryList[COUNTRY_NUM:]
+        topCountry = countryList[0:COUNTRY_NUM]
+        otherTotal = 0
+        for i in rest:
+            otherTotal += i["value"]
+        topCountry.append({"key":"Others","value":otherTotal})
+        countryList = topCountry
+        return countryList
+
+def yearly_trend(request):
+    # TODO: get overview data
+    couch = couchdb.Server("http://admin:password@45.113.234.42:5984")
+    
+    # TODO: papers over countries
+    url_country = BASE_URL + "paperinfo_scopus/_design/match/_view/PaperCountByYear?group=true"
+    headers = {
+        'Connection': 'close',
+    }
+    dataRaw = requests.get(url_country, headers=headers)
+    data = dataRaw.json()
+    if(data != None):
+        countryList = data['rows']
+    else:
+        countryList = {}
+    return JsonResponse(countryList, safe=False)
+
 def overview(request):
-    return render(request, 'overview.html')
+    # TODO: get overview data
+    couch = couchdb.Server("http://admin:password@45.113.234.42:5984")
+    
+    # TODO: papers over countries
+    url_country = BASE_URL + "coauthorinfo_scopus/_design/countryCount/_view/countTotal?group=true&reduce=true"
+    headers = {
+        'Connection': 'close',
+    }
+    dataRaw = requests.get(url_country, headers=headers)
+    data = dataRaw.json()
+    if(data != None):
+        countryList = data['rows']
+        countryList = getCountryList(countryList)
+    else:
+        countryList = {}
+
+    return render(request, 'overview.html',{'countryList': countryList})
 
 def authorcandidate (request, searchstr):
 
@@ -301,4 +357,54 @@ def searchKeywords(request,str):
 
 
 
+
+
+
+
+def recommmendedPapers(request, originalpaperId):
+    couch = couchdb.Server("http://admin:password@45.113.234.42:5984")
+    db = couch['paperinfo_scopus']
+    paperdetails = db.get(originalpaperId)
+    topicId = paperdetails['topic_ids'][0]
+    keywords = paperdetails['keyword']
+
+    headers = {
+        'Connection': 'close',
+    }
+    recommendedpaperidList = []
+    for keyword in keywords:
+        recommendedPapersUrl = "http://45.113.234.42:5984/paperinfo_scopus/_design/match/_view/topicMatchKeyword?key=[" + str(
+            topicId) + ",%22" + keyword + "%22]"
+        topickeywordPapers = requests.get(recommendedPapersUrl, headers=headers)
+        topickeywordPapersList = topickeywordPapers.json()['rows']
+        for topickeywordPaper in topickeywordPapersList:
+            if topickeywordPaper['value'] != originalpaperId:
+                recommendedpaperidList.append(topickeywordPaper['value'])
+
+    recommendedpapersList = []
+    for paperid in recommendedpaperidList:
+        idToPaperUrl = "http://45.113.234.42:5984/paperinfo_scopus/_design/match/_view/matchIdtoDetail?key=%22" + paperid + "%22"
+        paperinfo = requests.get(idToPaperUrl, headers=headers)
+        paperinfoJson = paperinfo.json()['rows'][0]
+
+        paperinfoDict = {}
+        paperinfoDict['id'] = paperinfoJson['key']
+        paperinfoDict['title'] = paperinfoJson['value'][0]
+        paperinfoDict['cisAuthors'] = paperinfoJson['value'][1]
+        paperinfoDict['year'] = paperinfoJson['value'][2]
+        paperinfoDict['abstract'] = paperinfoJson['value'][3]
+        paperinfoDict['type'] = paperinfoJson['value'][4]
+        paperinfoDict['keyword'] = paperinfoJson['value'][5]
+
+        cisAuthorList = paperinfoDict['cisAuthors'].split(',')
+        db = couch['staffinfo_scopus']
+        cisAuthorsDetails = []
+        for cisauthor in cisAuthorList:
+            authordetails = db.get(cisauthor)
+            cisAuthorsDetails.append({'id': authordetails['_id'], 'name': authordetails['fullName']})
+
+        paperinfoDict['CisAuthor'] = cisAuthorsDetails
+        recommendedpapersList.append(paperinfoDict)
+
+    return render(request, 'paperCandidate.html', {'res': recommendedpapersList, 'searchstr': "relevant topic", "size": len(recommendedpapersList)})
 
