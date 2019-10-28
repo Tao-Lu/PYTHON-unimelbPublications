@@ -1,6 +1,10 @@
 {% extends 'base.html' %}
 # content for paper details
 # title, year, CIS author, all author, cited count, paper type, full abstract
+{% block css %}
+    .clickable:hover {text-decoration: underline; cursor: pointer; color:blue; font-weight:bold}
+{% endblock %}
+
 {% block content %}
 
     <title>Paper Details</title>
@@ -21,7 +25,7 @@
                 {% for cisAuthor in paperdetailsDict.CISAuthors %}
                     <!--can be clicked-->
 {#                    <li style="display: inline-block">#}
-                    <li id={{ cisAuthor.id }} class="cisauthor">
+                    <li class="cisauthor clickable" id={{ cisAuthor.id }}>
                         {{ cisAuthor.name }}
                     </li>
                 {% endfor %}
@@ -34,9 +38,7 @@
                 {% for coAuthor in paperdetailsDict.co_author %}
                     <!--cannot be clicked-->
                     <li>
-                        <span>{{ coAuthor.id }}</span>
-                        <span>{{ coAuthor.name }}</span>
-                        <span>{{ coAuthor }}</span>
+                        {{ coAuthor.name }}
                     </li>
                 {% endfor %}
             </ul>
@@ -58,12 +60,15 @@
     <script>
 
         $(document).ready(function(){
-            $('.cisauthor').on('click', function () {
+
+            $('#cisauthorlist').on('click', '.cisauthor', function () {
                 var authorId = $(this).attr('id');
+                console.log(authorId)
                 var host = location.host;
                 var url = "http://" + host + "/authorDetails/" + authorId;
                 window.location.href = url;
             });
+
         });
 
 

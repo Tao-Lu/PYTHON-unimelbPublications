@@ -15,7 +15,7 @@
                 <th>Email</th>
             </tr>
     </thead>
-    <tbody>
+    <tbody id="tbodyDataRow">
         {% for dic in res.values%}
         <tr class="dataRow" id={{ dic.id }}>
             <td class="pointer">{{ dic.name }}</td>
@@ -31,14 +31,13 @@
     $(document).ready(function() {
         $('#example').DataTable();
         $('#example_paginate').hide();
-        $('.dataRow').on('click', function () {
+        $('#tbodyDataRow').on('click', '.dataRow', function () {
             var scopusId = $(this).closest('tr').attr('id');
             console.log(scopusId);
             var host = location.host;
             var url = "http://"+host+"/authorDetails/"+scopusId;
             window.location.href = url;
         });
-
     });
     </script>
 
