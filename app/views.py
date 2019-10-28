@@ -358,3 +358,53 @@ def searchKeywords(request,str):
 
 
 
+
+
+
+def recommmendedPapers(request, originalpaperId):
+    couch = couchdb.Server("http://admin:password@45.113.234.42:5984")
+    db = couch['paperinfo_scopus']
+    paperdetails = db.get(originalpaperId)
+    topicId = paperdetails['topic_ids'][0]
+    keywords = paperdetails['keyword']
+
+    headers = {
+        'Connection': 'close',
+    }
+    recommendedpaperidList = []
+    for keyword in keywords:
+        recommendedPapersUrl = "http://45.113.234.42:5984/paperinfo_scopus/_design/match/_view/topicMatchKeyword?key=[" + str(
+            topicId) + ",%22" + keyword + "%22]"
+        topickeywordPapers = requests.get(recommendedPapersUrl, headers=headers)
+        topickeywordPapersList = topickeywordPapers.json()['rows']
+        for topickeywordPaper in topickeywordPapersList:
+            if topickeywordPaper['value'] != originalpaperId:
+                recommendedpaperidList.append(topickeywordPaper['value'])
+
+    recommendedpapersList = []
+    for paperid in recommendedpaperidList:
+        idToPaperUrl = "http://45.113.234.42:5984/paperinfo_scopus/_design/match/_view/matchIdtoDetail?key=%22" + paperid + "%22"
+        paperinfo = requests.get(idToPaperUrl, headers=headers)
+        paperinfoJson = paperinfo.json()['rows'][0]
+
+        paperinfoDict = {}
+        paperinfoDict['id'] = paperinfoJson['key']
+        paperinfoDict['title'] = paperinfoJson['value'][0]
+        paperinfoDict['cisAuthors'] = paperinfoJson['value'][1]
+        paperinfoDict['year'] = paperinfoJson['value'][2]
+        paperinfoDict['abstract'] = paperinfoJson['value'][3]
+        paperinfoDict['type'] = paperinfoJson['value'][4]
+        paperinfoDict['keyword'] = paperinfoJson['value'][5]
+
+        cisAuthorList = paperinfoDict['cisAuthors'].split(',')
+        db = couch['staffinfo_scopus']
+        cisAuthorsDetails = []
+        for cisauthor in cisAuthorList:
+            authordetails = db.get(cisauthor)
+            cisAuthorsDetails.append({'id': authordetails['_id'], 'name': authordetails['fullName']})
+
+        paperinfoDict['CisAuthors'] = cisAuthorsDetails
+        recommendedpapersList.append(paperinfoDict)
+
+    return render(request, 'paperCandidate.html', {'res': recommendedpapersList, 'searchstr': "relevant topic", "size": len(recommendedpapersList)})
+
