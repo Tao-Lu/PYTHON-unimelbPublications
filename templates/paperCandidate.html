@@ -18,9 +18,21 @@
             {% for item in res %}
                 <h3 class="paperResult pointer" style="margin-top: 10px" id={{ item.id }}>{{ item.title }}</h3>
                 <h5 style="margin-top:5px">{{ item.year }}</h5>
-                <p><b>CIS Authors:</b> {{ item.CisAuthor }}</p>
+
+                <p><b>CIS Authors:</b>
+                    {% for author in item.CisAuthor %}
+                        <span class="clickable" id={{ author.id }}>{{ author.name }}</span>
+                        <span> | </span>
+                        {% endfor %}
+                        </p>
+
                 <h5>Abstract:</h5>
                 <p style="margin-bottom: 20px">{{ item.abstract }}...</p>
+                <h6 style="margin-top:10px">
+                    {% for word in item.keyword %}
+                        <span class="badge badge-pill badge-success">{{word}}</span>
+                    {% endfor %}
+                </h6>
                 <h5 style="margin-bottom: 30px"><span class="badge badge-pill badge-dark">{{ item.type }}</span></h5>
 
             {% endfor %}
@@ -34,6 +46,13 @@
             console.log(paperId);
             var host = location.host;
             var url = "http://"+host+"/paperDetails/"+paperId;
+            window.location.href = url;
+        });
+
+        $('.clickable').on('click',function(){
+            var personId = $(this).attr('id');
+            var host = location.host;
+            var url = "http://"+host+"/authorDetails/"+personId;
             window.location.href = url;
         });
 
