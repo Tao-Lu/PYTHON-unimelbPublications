@@ -86,13 +86,13 @@ def paperDetails(request, searchStr):
     for authorId in paperdetailsDict['CISAuthors']:
         for author in authorIdToNameJson:
             if authorId == author['key']:
-                authorIdName.append({"id": authorId, "name": author['value']})
+                authorIdName.append({"id": authorId, "name": author['value'][0]})
 
     coauthorIdName = []
     for coauthorId in paperdetailsDict['co_author']:
         for coauthor in authorIdToNameJson:
             if coauthorId == coauthor['key']:
-                coauthorIdName.append({"id": coauthorId, "name": coauthor['value']})
+                coauthorIdName.append({"id": coauthorId, "name": coauthor['value'][0]})
 
     paperdetailsDict['CISAuthors'] = authorIdName
     paperdetailsDict['co_author'] = coauthorIdName
