@@ -8,12 +8,19 @@
     <link rel="stylesheet" href="{% static 'css/bootstrap-grid.min.css' %}">
     <link rel="stylesheet" href="{% static 'css/bootstrap-reboot.css' %}">
     <link rel="stylesheet" href="{% static 'css/dataTables.bootstrap4.min.css' %}">
+    <link rel="stylesheet" href="{% static 'css/jquery.tag-editor.css' %}">
 
     <script src="{% static 'js/bootstrap.js' %}"></script>
     <script src="{% static 'js/bootstrap.bundle.js' %}"></script>
     <script src="{% static 'js/dataTables.bootstrap4.min.js' %}"></script>
     <script src="{% static 'js/jquery-3.3.1.js' %}"></script>
     <script src="{% static 'js/jquery.dataTables.min.js' %}"></script>
+    <script src="{% static 'js/jquery.tag-editor.js' %}"></script>
+    <script src="{% static 'js/jquery.tag-editor.min.js' %}"></script>
+
+
+
+
     {% block src %}{% endblock src %}
 
     <style>
@@ -54,8 +61,10 @@
             <option value="topic">Topic</option>
         </select>
 
-      <input class="form-control mr-sm-2" type="text" placeholder="Search" id="searchBox">
-      <button class="btn btn-secondary my-2 my-sm-0" type="button" id="searchdb">Search</button>
+
+        <input class="form-control mr-sm-2" type="text" placeholder="Search" id="searchBox">
+
+        <button class="btn btn-secondary my-2 my-sm-0" type="button" id="searchdb">Search</button>
 
     </form>
   </div>
@@ -89,5 +98,8 @@
        }
 
     });
+
+    $('input[type="text"]').tagEditor({ initialTags: ['tag1', 'tag2', 'tag3'] });
+
 </script>
 </html>
