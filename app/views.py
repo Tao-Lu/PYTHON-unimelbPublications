@@ -247,10 +247,10 @@ def paperCandidate (request, searchstr):
                 for name in dataNameRow:
                     if scopusId == name['key']:
                         if firstAuthor == 0:
-                            paperinfo['CisAuthor'] = name['value']
+                            paperinfo['CisAuthor'] = name['value'][0]
                             firstAuthor = 1
                         else:
-                            paperinfo['CisAuthor']=paperinfo['CisAuthor'] + ', '+name['value']
+                            paperinfo['CisAuthor']=paperinfo['CisAuthor'] + ', '+name['value'][0]
             result.append(paperinfo)
     #  --------------------testing--------------------------------------------------------
     # result = []
