@@ -1,0 +1,48 @@
+{% extends 'base.html' %}
+# content for paper candidate
+# title, CIS author, year, partial abstract
+{% block css %}
+
+    .clickable:hover {text-decoration: underline; cursor: pointer; color:blue; font-weight:bold}
+
+{% endblock %}
+
+{% block content %}
+    <div class="columns medium-10">
+        <div class="search-result col-md-10" style="margin-left:80px">
+            {% for paper in coauthoredpaperinfoList %}
+                <h3 class="paperResult clickable" style="margin-top: 10px" id={{ paper.id }}>{{ paper.title }}</h3>
+                <h5 style="margin-top:5px">{{ paper.year }}</h5>
+                {% for cisauthor in paper.cisAuthors %}
+                    <p class="cisAuthors clickable" id={{ cisauthor.id }}><b>CIS Authors:</b> {{ cisauthor.name }}</p>
+                {% endfor %}
+                <h5>Abstract:</h5>
+                <p style="margin-bottom: 20px">{{ paper.abstract }}...</p>
+                <h5 style="margin-bottom: 30px"><span class="badge badge-pill badge-dark">{{ paper.paperType }}</span></h5>
+            {% endfor %}
+        </div>
+
+    </div>
+    <script>
+
+        $('.paperResult').on('click', function () {
+            var paperId = $(this).attr('id');
+            console.log(paperId);
+            var host = location.host;
+            var url = "http://"+host+"/paperDetails/"+paperId;
+            window.location.href = url;
+        });
+
+        $('.cisAuthors').on('click', function () {
+            var cisAuthorId = $(this).attr('id');
+            console.log(cisAuthorId);
+            var host = location.host;
+            var url = "http://"+host+"/authorDetails/"+cisAuthorId;
+            window.location.href = url;
+        });
+
+    </script>
+{% endblock %}
+
+
+

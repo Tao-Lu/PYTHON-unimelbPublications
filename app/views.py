@@ -81,20 +81,18 @@ def paperDetails(request, searchStr):
     }
     authorIdToName = requests.get(url, headers=headers)
     authorIdToNameJson = authorIdToName.json()['rows']
-    # print(authorIdToName)
-    # print(authorIdToNameJson)
 
     authorIdName = []
     for authorId in paperdetailsDict['CISAuthors']:
         for author in authorIdToNameJson:
             if authorId == author['key']:
-                authorIdName.append({"id": authorId, "name": author['value']})
+                authorIdName.append({"id": authorId, "name": author['value'][0]})
 
     coauthorIdName = []
     for coauthorId in paperdetailsDict['co_author']:
         for coauthor in authorIdToNameJson:
             if coauthorId == coauthor['key']:
-                coauthorIdName.append({"id": coauthorId, "name": coauthor['value']})
+                coauthorIdName.append({"id": coauthorId, "name": coauthor['value'][0]})
 
     paperdetailsDict['CISAuthors'] = authorIdName
     paperdetailsDict['co_author'] = coauthorIdName
@@ -108,7 +106,7 @@ def authorDetails(request, searchStr):
     db = couch['staffinfo_scopus']
     authordetails = db.get(searchStr)
 
-    # put paper details into dict
+    # author details
     authordetailsDict = {}
     authordetailsDict['fullName'] = authordetails['fullName']
     authordetailsDict['orcid'] = authordetails['orcid']
@@ -117,11 +115,12 @@ def authorDetails(request, searchStr):
     authordetailsDict['document_count'] = authordetails['document_count']
     authordetailsDict['cited_by_count'] = authordetails['cited_by_count']
 
-    url = "http://45.113.234.42:5984/allinfo_scopus/_design/relationship/_view/cisAuthorPaper?key=%22" + searchStr + "%22"
+    # papers that belong to this author
+    paperListUrl = "http://45.113.234.42:5984/allinfo_scopus/_design/relationship/_view/cisAuthorPaper?key=%22" + searchStr + "%22"
     headers = {
         'Connection': 'close',
     }
-    paperlist = requests.get(url, headers=headers)
+    paperlist = requests.get(paperListUrl, headers=headers)
     paperlistJson = paperlist.json()['rows']
 
     idTitleList = []
@@ -130,7 +129,88 @@ def authorDetails(request, searchStr):
 
     authordetailsDict['paperlist'] = idTitleList
 
+    # co-authors that connect to this author
+    coAuthorListUrl = "http://45.113.234.42:5984/allinfo_scopus/_design/relationship/_view/cisAuthorAndAllAuthor?group_level=2&startkey=[%22" + searchStr + "%22]&endkey=[%22" + searchStr + "%22,{}]"
+    headers = {
+        'Connection': 'close',
+    }
+    coAuthorlist = requests.get(coAuthorListUrl, headers=headers)
+    coAuthorlistJson = coAuthorlist.json()['rows']
+
+    # author id to name
+    url = "http://45.113.234.42:5984/allinfo_scopus/_design/relationship/_view/nameMatch"
+    headers = {
+        'Connection': 'close',
+    }
+    authorIdToName = requests.get(url, headers=headers)
+    authorIdToNameJson = authorIdToName.json()['rows']
+
+    idCoauthoredList = []
+    for coauthor in coAuthorlistJson:
+        coauthorId = coauthor['key'][1]
+        for author in authorIdToNameJson:
+            if coauthorId == author['key']:
+                idCoauthoredList.append({"id": coauthor['key'][1], "name":  author['value'][0], "papercount": coauthor['value'], "authorType": author['value'][1]})
+
+    authordetailsDict['coauthorlist'] = idCoauthoredList
+
     return render(request, 'authorDetails.html', {'authordetailsDict': authordetailsDict})
+
+
+def coAuthorDetails(request, searchStr):
+    couch = couchdb.Server("http://admin:password@45.113.234.42:5984")
+    db = couch['coauthorinfo_scopus']
+    coauthordetails = db.get(searchStr)
+
+    # author details
+    coauthordetailsDict = {}
+    coauthordetailsDict['name'] = coauthordetails['name']
+    coauthordetailsDict['affiliation'] = coauthordetails['affiliation']
+    coauthordetailsDict['affiliation_city'] = coauthordetails['affiliation_city']
+    coauthordetailsDict['affiliation_country'] = coauthordetails['affiliation_country']
+
+    return render(request, "coAuthorDetails.html", {'coauthordetailsDict': coauthordetailsDict})
+
+
+def coAuthoredPapers(request, cisAuthorId, coAuthorId):
+
+    coauthoredpaperUrl = "http://45.113.234.42:5984/allinfo_scopus/_design/relationship/_view/cisAuthorAndAllAuthor?group_level=3&startkey=[%22" + cisAuthorId + "%22,%22" + coAuthorId + "%22,null]&endkey=[%22" + cisAuthorId + "%22,%22" + coAuthorId + "%22,{}]"
+    headers = {
+        'Connection': 'close',
+    }
+    coauthoredpaperList = requests.get(coauthoredpaperUrl, headers=headers)
+    coauthoredpaperListJson = coauthoredpaperList.json()['rows']
+    coauthoredpaperIdList = []
+    for paper in coauthoredpaperListJson:
+        coauthoredpaperIdList.append(paper['key'][2])
+
+    couch = couchdb.Server("http://admin:password@45.113.234.42:5984")
+    db = couch['staffinfo_scopus']
+    coauthoredpaperinfoList = []
+    for paperid in coauthoredpaperIdList:
+        idToPaperUrl = "http://45.113.234.42:5984/paperinfo_scopus/_design/match/_view/matchIdtoDetail?key=%22" + paperid + "%22"
+        paperinfo = requests.get(idToPaperUrl, headers=headers)
+        paperinfoJson = paperinfo.json()['rows'][0]
+
+        paperinfoDict = {}
+        paperinfoDict['id'] = paperinfoJson['key']
+        paperinfoDict['title'] = paperinfoJson['value'][0]
+        paperinfoDict['cisAuthors'] = paperinfoJson['value'][1]
+        paperinfoDict['year'] = paperinfoJson['value'][2]
+        paperinfoDict['abstract'] = paperinfoJson['value'][3]
+        paperinfoDict['paperType'] = paperinfoJson['value'][4]
+
+        cisAuthorList = paperinfoDict['cisAuthors'].split(',')
+        cisAuthorsDetails = []
+        for cisauthor in cisAuthorList:
+            authordetails = db.get(cisauthor)
+            cisAuthorsDetails.append({'id': authordetails['_id'], 'name': authordetails['fullName']})
+
+        paperinfoDict['cisAuthors'] = cisAuthorsDetails
+        coauthoredpaperinfoList.append(paperinfoDict)
+
+    return render(request, 'coAuthoredPapers.html', {'coauthoredpaperinfoList': coauthoredpaperinfoList})
+
 
 def paperCandidate (request, searchstr):
     paperUrl = "http://45.113.234.42:5984/paperinfo_scopus/_design/match/_view/matchTitle"
@@ -167,10 +247,10 @@ def paperCandidate (request, searchstr):
                 for name in dataNameRow:
                     if scopusId == name['key']:
                         if firstAuthor == 0:
-                            paperinfo['CisAuthor'] = name['value']
+                            paperinfo['CisAuthor'] = name['value'][0]
                             firstAuthor = 1
                         else:
-                            paperinfo['CisAuthor']=paperinfo['CisAuthor'] + ', '+name['value']
+                            paperinfo['CisAuthor']=paperinfo['CisAuthor'] + ', '+name['value'][0]
             result.append(paperinfo)
     #  --------------------testing--------------------------------------------------------
     # result = []
