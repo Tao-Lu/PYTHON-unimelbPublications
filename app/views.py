@@ -236,30 +236,69 @@ def paperCandidate (request, searchstr):
             cisAuthorId = row['value'][1].split(',')
             paperinfo['year'] = row['value'][2]
             paperinfo['abstract'] = row['value'][3]
-            paperinfo['CisAuthor'] = ''
+            paperinfo['CisAuthor'] = []
             paperinfo['type'] = row['value'][4]
             paperinfo['title'].replace('"','')
             paperinfo['title'].replace('#','')
             paperinfo['title'].replace('\\','')
 
-            firstAuthor = 0
+            coauthorIdName = []
             for scopusId in cisAuthorId:
                 for name in dataNameRow:
                     if scopusId == name['key']:
-                        if firstAuthor == 0:
-                            paperinfo['CisAuthor'] = name['value'][0]
-                            firstAuthor = 1
-                        else:
-                            paperinfo['CisAuthor']=paperinfo['CisAuthor'] + ', '+name['value'][0]
+                        coauthorIdName.append({"id": scopusId, "name": name['value'][0]})
+            paperinfo['CisAuthor'] = coauthorIdName
             result.append(paperinfo)
-    #  --------------------testing--------------------------------------------------------
-    # result = []
-    # paper1 = {'id':'001','title':'title1','year':'2019','abstract':'Queries to text collections are resolved by ranking the documents in the collection and returning the highest-scoring documents to the user.',
-    #           'CisAuthor':'author1, author2, author3','type':'Conference paper'}
-    # result.append(paper1)
-    # paper2 = {'id': '002', 'title': 'title2', 'year': '2018',
-    #           'abstract': 'Queries to text collections are resolved by ranking the documents in the collection and returning the highest-scoring documents to the user.',
-    #           'CisAuthor': 'author1, author2','type':'Journal'}
-    # result.append(paper2)
 
     return render(request, 'paperCandidate.html', {'res': result, 'searchstr': searchstr,'size':len(result)})
+
+def searchKeywords(request,str):
+    result = []
+    keywords = str.split(',')
+    couch = couchdb.Server("http://admin:password@45.113.234.42:5984")
+    db = couch['paperinfo_scopus']
+    nameUrl = "http://45.113.234.42:5984/allinfo_scopus/_design/relationship/_view/nameMatch"
+    headers = {
+        'Connection': 'close',
+    }
+    dataRawName = requests.get(nameUrl, headers=headers)
+    dataName = dataRawName.json()
+    dataNameRow = dataName["rows"]
+    for word in keywords:
+        searchWord = word.lower()
+        url = "http://45.113.234.42:5984/paperinfo_scopus/_design/match/_view/matchKeyWords?reduce=false&key=%22"+searchWord+"%22"
+
+        dataRawPaper = requests.get(url, headers=headers)
+        dataPaper = dataRawPaper.json()
+        dataRow = dataPaper["rows"]
+        for paper in dataRow:
+            paperinfo = {}
+            docDetail = db.get(paper['value'])
+            cisAuthorId = []
+            paperinfo['id'] = docDetail['_id']
+            paperinfo['title'] = docDetail['title']
+            cisAuthorId = docDetail['CISAuthors'].split(',')
+            paperinfo['year'] = docDetail['coverDateYear']
+            paperinfo['abstract'] = docDetail['abstract'].split('.')[0]+'. ' + docDetail['abstract'].split('.')[1]+'.'
+            paperinfo['CisAuthor'] = []
+            paperinfo['type'] = docDetail['paper_type']
+            paperinfo['keyword'] = docDetail['keyword']
+            # paperinfo['title'].replace('"', '')
+            # paperinfo['title'].replace('#', '')
+            # paperinfo['title'].replace('\\', '')
+
+            coauthorIdName = []
+            for scopusId in cisAuthorId:
+                for name in dataNameRow:
+                    if scopusId == name['key']:
+                        coauthorIdName.append({"id": scopusId, "name": name['value'][0]})
+            paperinfo['CisAuthor'] = coauthorIdName
+            result.append(paperinfo)
+
+    return render(request, 'paperCandidate.html', {'res': result, 'searchstr': str, 'size': len(result)})
+
+
+
+
+
+

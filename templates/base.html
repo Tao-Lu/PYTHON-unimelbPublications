@@ -9,6 +9,7 @@
     <link rel="stylesheet" href="{% static 'css/bootstrap-reboot.css' %}">
     <link rel="stylesheet" href="{% static 'css/dataTables.bootstrap4.min.css' %}">
     <link rel="stylesheet" href="{% static 'css/jquery.tag-editor.css' %}">
+    <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
 
     <script src="{% static 'js/bootstrap.js' %}"></script>
     <script src="{% static 'js/bootstrap.bundle.js' %}"></script>
@@ -26,6 +27,7 @@
 
     <style>
         {% block css %}{% endblock %}
+
     </style>
 
 </head>
@@ -59,7 +61,7 @@
         <option selected>search by</option>
             <option value="author">Author</option>
             <option value="title">Title</option>
-            <option value="topic">Topic</option>
+            <option value="keywords">Keywords</option>
         </select>
 
 
@@ -90,6 +92,9 @@
            else if (searchBy == 'title'){
                var url = "http://"+host+"/paperCandidate/"+searchKey;
                window.location.href = url;
+           }else if (searchBy == 'keywords'){
+                var url = "http://"+host+"/keywordsCandidate/"+searchKey;
+                window.location.href = url;
            }
            else{
                alert("please select search method.");
@@ -100,7 +105,19 @@
 
     });
 
-    $('input[type="text"]').tagEditor({ initialTags: ['tag1', 'tag2', 'tag3'] });
+    $('#searchSelect').on('change',function(){
+        var searchBy = document.getElementById("searchSelect").value;
+        if (searchBy == 'keywords'){
+            $('input').tagEditor({
+                placeholder:"Please enter keywords and follow by enter."
+            });
+        }else{
+            $('input').tagEditor('destroy');
+        }
+    });
+
+
+
 
 </script>
 </html>

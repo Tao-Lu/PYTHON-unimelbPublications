@@ -29,5 +29,6 @@ urlpatterns = [
     re_path(r'^authorDetails/(.+)$', views.authorDetails, name='authordetails'),
     re_path(r'^coAuthorDetails/(.+)$', views.coAuthorDetails, name='coauthordetails'),
     re_path(r'^paperCandidate/(.+)$', views.paperCandidate, name='papercandidate'),
-    re_path(r'^coAuthoredPapers/(.+)/(.+)$', views.coAuthoredPapers, name='coauthoredpapers')
+    re_path(r'^coAuthoredPapers/(.+)/(.+)$', views.coAuthoredPapers, name='coauthoredpapers'),
+    re_path(r'^keywordsCandidate/(.+)$', views.searchKeywords, name='searchKeyword')
 ]
