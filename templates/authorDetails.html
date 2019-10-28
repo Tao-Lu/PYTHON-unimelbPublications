@@ -4,11 +4,8 @@
 # name, orcid, email, staff type, paper count, cited count, paper list (title)
 # todo: add author photo
 {% block css %}
-    .pointer {cursor: pointer;}
-    .pointer{
-        text-decoration: underline;
-    }
 
+    .clickable:hover {text-decoration: underline; cursor: pointer; color:blue; font-weight:bold}
 
 {% endblock %}
 {% block content %}
@@ -37,42 +34,103 @@
                 <h4 id="citedCount">
                     Cited By Count: {{authordetailsDict.cited_by_count}}
                 </h4>
-
-                <table id="paperlist" class="table table-striped table-bordered">
+            </div>
+            <div id="authorRelationship" style="padding: 10px; border-left: 2px dotted #000;" class="col-md-6">
+                <img src="{% static 'res/background.jpg' %}" style="height: auto; max-width: 100%" class="img-responsive"/>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-12">
+                <h2 style="margin-top:40px">Documents List</h2>
+                <table id="paperlist" class="table table-striped table-bordered" style="margin-bottom:30px">
                     <thead>
                         <tr>
                             <th>Title</th>
                         </tr>
                     </thead>
-                    <tbody>
+                    <tbody id="tbodyTitle">
                         {% for paper in authordetailsDict.paperlist %}
-                            <tr class="dataRow pointer" id={{ paper.id }}>
-                                <td class="pointer">{{ paper.title }}</td>
+                            <tr class="title" id={{ paper.id }}>
+                                <td class="clickable">{{ paper.title }}</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                <h2 style="margin-top:30px">Co-Authors List</h2>
+                <table id="coauthorlist" class="table table-striped table-bordered" style="margin-bottom:30px">
+                    <thead>
+                        <tr>
+                            <th>Co-Authors</th>
+                            <th>Co-Authored Documents</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tbodyCoauthor">
+                        {% for coauthor in authordetailsDict.coauthorlist %}
+{#                            <tr class="coauthor pointer" id={{ coauthor.id }}>#}
+                            <tr class="coauthor" id={{ coauthor.id }} cis={{ coauthor.authorType }}>
+                                <td class="coauthorName clickable">{{ coauthor.name }}</td>
+                                <td class="coauthorPaper clickable">{{ coauthor.papercount }}</td>
+{#                                <td class="pointer">{{ coauthor.name }}</td>#}
+{#                                <td class="pointer">{{ coauthor.papercount }}</td>#}
                             </tr>
                         {% endfor %}
                     </tbody>
                 </table>
             </div>
-
-            <div id="authorRelationship" style="padding: 10px; border-left: 2px dotted #000;" class="col-md-6">
-                <img src="{% static 'res/background.jpg' %}" style="height: auto; max-width: 100%" class="img-responsive"/>
-            </div>
         </div>
 
     </div>
+
 
     <script>
     $(document).ready(function() {
         $('#paperlist').DataTable();
         {#$('#paperlist_paginate').hide();#}
-        $('.dataRow').on('click', function () {
+        $('#tbodyTitle').on('click', '.title', function () {
             var paperId = $(this).closest('tr').attr('id');
+            console.log(paperId)
             var host = location.host;
             var url = "http://" + host + "/paperDetails/" + paperId;
             window.location.href = url;
         });
 
+        {#jump to coAuthorDetails, but some coauthors do not have records#}
+        $('#coauthorlist').DataTable();
+        {#$('#coauthorlist_paginate').hide();#}
+        $('#tbodyCoauthor').on('click', '.coauthorName', function () {
+            var coauthorId = $(this).closest('tr').attr('id');
+            var authorType = $(this).closest('tr').attr('cis');
+            console.log(coauthorId);
+            console.log(authorType);
+
+            var host = location.host;
+            if(authorType == "Y"){
+                var url = "http://" + host + "/authorDetails/" + coauthorId;
+                window.location.href = url;
+            }
+            else{
+                var url = "http://" + host + "/coAuthorDetails/" + coauthorId;
+                window.location.href = url;
+            }
+
+        });
+
+        {#jump to coAuthoredPapers#}
+        $('#tbodyCoauthor').on('click', '.coauthorPaper', function () {
+            var coauthorId = $(this).closest('tr').attr('id');
+            var cisauthorId = location.href.split('/');
+            cisauthorId = cisauthorId[cisauthorId.length-1];
+            console.log(coauthorId);
+            console.log(cisauthorId);
+            var host = location.host;
+            var url = "http://" + host + "/coAuthoredPapers/" + cisauthorId + "/" + coauthorId;
+            window.location.href = url;
+        });
+
     });
+
+
+
     </script>
 
 

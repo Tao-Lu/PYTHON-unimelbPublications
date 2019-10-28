@@ -14,6 +14,7 @@
     <script src="{% static 'js/dataTables.bootstrap4.min.js' %}"></script>
     <script src="{% static 'js/jquery-3.3.1.js' %}"></script>
     <script src="{% static 'js/jquery.dataTables.min.js' %}"></script>
+    {% block src %}{% endblock src %}
 
     <style>
         {% block css %}{% endblock %}
@@ -71,15 +72,22 @@
        console.log(searchBy);
        console.log(searchKey);
        var host = location.host;
-       if (searchBy == 'author'){
+       if(searchKey!=""){
+           if (searchBy == 'author'){
            var url = "http://"+host+"/authorCandidate/"+searchKey;
            window.location.href = url;
+           }
+           else if (searchBy == 'title'){
+               var url = "http://"+host+"/paperCandidate/"+searchKey;
+               window.location.href = url;
+           }
+           else{
+               alert("please select search method.");
+           }
+       }else{
+           alert("please enter some search term then press search.");
        }
-       if (searchBy == 'title'){
-           var url = "http://"+host+"/paperCandidate/"+searchKey;
-           window.location.href = url;
 
-       }
     });
 </script>
 </html>

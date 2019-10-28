@@ -1,0 +1,25 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+    <title>Co-Author Details</title>
+
+    <div class="container">
+        <div id="coauthorDetails" style="padding: 10px; border-right: 2px dotted #000; border-style: solid; border-color: black; border-width: 10px" class="col-md-12">
+            <h2 id="name">
+                {{coauthordetailsDict.name}}
+            </h2>
+            <h4 id="affiliation">
+                Affiliation: {{coauthordetailsDict.affiliation}}
+            </h4>
+            <h4 id="affiliation_city">
+                Affiliation City: {{coauthordetailsDict.affiliation_city}}
+            </h4>
+            <h4 id="affiliation_country">
+                Affiliation Country: {{coauthordetailsDict.affiliation_country}}
+            </h4>
+
+        </div>
+    </div>
+
+{% endblock %}
