@@ -403,7 +403,7 @@ def recommmendedPapers(request, originalpaperId):
             authordetails = db.get(cisauthor)
             cisAuthorsDetails.append({'id': authordetails['_id'], 'name': authordetails['fullName']})
 
-        paperinfoDict['CisAuthors'] = cisAuthorsDetails
+        paperinfoDict['CisAuthor'] = cisAuthorsDetails
         recommendedpapersList.append(paperinfoDict)
 
     return render(request, 'paperCandidate.html', {'res': recommendedpapersList, 'searchstr': "relevant topic", "size": len(recommendedpapersList)})
