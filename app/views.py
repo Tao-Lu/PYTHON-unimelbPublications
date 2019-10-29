@@ -26,6 +26,14 @@ return redirect("https://blog.csdn.net/miaoqinian")
 def homepage(request):
     return render(request, 'homePage.html')
 
+
+def authorOverview(request):
+    return render(request, 'authorOverview.html')
+
+
+def aboutUs(request):
+    return render(request, 'aboutUs.html')
+
 #Utility Function for Overview:
 
 def getCountryList(countryList):
@@ -129,6 +137,7 @@ def paperDetails(request, searchStr):
     paperdetailsDict['cite_count'] = paperdetails['cite_count']
     paperdetailsDict['paper_type'] = paperdetails['paper_type']
     paperdetailsDict['abstract'] = paperdetails['abstract']
+    paperdetailsDict['keyword'] = paperdetails['keyword']
 
     url = "http://45.113.234.42:5984/allinfo_scopus/_design/relationship/_view/nameMatch"
 
@@ -148,7 +157,7 @@ def paperDetails(request, searchStr):
     for coauthorId in paperdetailsDict['co_author']:
         for coauthor in authorIdToNameJson:
             if coauthorId == coauthor['key']:
-                coauthorIdName.append({"id": coauthorId, "name": coauthor['value'][0]})
+                coauthorIdName.append({"id": coauthorId, "name": coauthor['value'][0], "authorType": coauthor['value'][1]})
 
     paperdetailsDict['CISAuthors'] = authorIdName
     paperdetailsDict['co_author'] = coauthorIdName
@@ -255,6 +264,8 @@ def coAuthoredPapers(request, cisAuthorId, coAuthorId):
         paperinfoDict['year'] = paperinfoJson['value'][2]
         paperinfoDict['abstract'] = paperinfoJson['value'][3]
         paperinfoDict['paperType'] = paperinfoJson['value'][4]
+        paperinfoDict['keyword'] = paperinfoJson['value'][5]
+
 
         cisAuthorList = paperinfoDict['cisAuthors'].split(',')
         cisAuthorsDetails = []
@@ -308,6 +319,7 @@ def paperCandidate (request, searchstr):
 
     return render(request, 'paperCandidate.html', {'res': result, 'searchstr': searchstr,'size':len(result)})
 
+
 def searchKeywords(request,str):
     result = []
     keywords = str.split(',')
@@ -352,13 +364,6 @@ def searchKeywords(request,str):
             result.append(paperinfo)
 
     return render(request, 'paperCandidate.html', {'res': result, 'searchstr': str, 'size': len(result)})
-
-
-
-
-
-
-
 
 
 def recommmendedPapers(request, originalpaperId):
