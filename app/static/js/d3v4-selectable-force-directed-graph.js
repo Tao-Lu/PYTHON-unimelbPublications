@@ -90,14 +90,15 @@ function createV4SelectableForceDirectedGraph(svg, graph) {
             else
                 return d.id; 
         });
+        
 
     var simulation = d3v4.forceSimulation()
         .force("link", d3v4.forceLink()
                 .id(function(d) { return d.id; })
                 .distance(function(d) { 
-                    return 30;
-                    //var dist = 20 / d.value;
-                    //console.log('dist:', dist);
+                    // return 30;
+                    var dist = 20 / d.value;
+                    console.log('dist:', dist);
 
                     return dist; 
                 })

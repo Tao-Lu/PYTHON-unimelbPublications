@@ -36,19 +36,22 @@ def aboutUs(request):
 
 #Utility Function for Overview:
 
-def getCountryList(countryList):
-    if(len(countryList) < COUNTRY_NUM):
+
+
+
+def getTopList(List):
+    if(len(List) < COUNTRY_NUM):
         return countryList
     else:
-        countryList.sort(key=lambda x: x["value"], reverse=True)
-        rest = countryList[COUNTRY_NUM:]
-        topCountry = countryList[0:COUNTRY_NUM]
+        List.sort(key=lambda x: x["value"], reverse=True)
+        rest = List[COUNTRY_NUM:]
+        topList = List[0:COUNTRY_NUM]
         otherTotal = 0
         for i in rest:
             otherTotal += i["value"]
-        topCountry.append({"key":"Others","value":otherTotal})
-        countryList = topCountry
-        return countryList
+        topList.append({"key":"Others","value":otherTotal})
+        List = topList
+        return List
 
 def yearly_trend(request):
     # TODO: get overview data
@@ -110,11 +113,20 @@ def overview(request):
     data = dataRaw.json()
     if(data != None):
         countryList = data['rows']
-        countryList = getCountryList(countryList)
+        countryList = getTopList(countryList)
     else:
         countryList = {}
 
-    return render(request, 'overview.html',{'countryList': countryList})
+    url = BASE_URL + "coauthorinfo_scopus/_design/countryCount/_view/countAusUni?group=true"
+    dataRaw = requests.get(url, headers=headers)
+    data = dataRaw.json()
+    if(data != None):
+        uniList = data['rows']
+        uniList = getTopList(uniList)
+    else:
+        uniList = {}
+
+    return render(request, 'overview.html',{'countryList': countryList,'uniList':uniList})
 
 def authorcandidate (request, searchstr):
 

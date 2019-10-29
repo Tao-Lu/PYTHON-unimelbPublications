@@ -24,8 +24,16 @@
         background-color:rgba(180, 180, 139, 0.264);
 
     }
+
+    .text_layout {
+        margin: auto;
+        width:100%
+        min-width: 800px;
+        flex:1
+    }
     
     .graph_layout {
+        padding:3rem;
         margin: auto;
         width:100%
         min-width: 800px;
@@ -74,11 +82,11 @@
 
 
 
-    .labels{
-        font-size: 0.7rem;
+    .pie_label{
+        font-size: 0.6rem;
     }
 
-    #svg_cp{
+    .svg_pie{
         width: 100%;
         height: 100%;
     }
@@ -95,7 +103,7 @@
     }
 
     {% comment %} paper yearly trend{% endcomment %}
-    #svg_cp {
+    .svg_pie {
         vetica Neue;
         fill: #666;
     }
@@ -121,7 +129,7 @@
 
     {% comment %} yearly publication trend {% endcomment %}
 
-    #svg_yt {
+    .svg_yt {
         font: 10px sans-serif;
     }
 
@@ -133,8 +141,12 @@
         fill: brown;
     }
 
+    .bar_label{
+        font: 10px sans-serif;
+    }
+
     .axis {
-    font: 10px sans-serif;
+        font: 10px sans-serif;
     }
 
     .axis path,
@@ -144,23 +156,94 @@
     shape-rendering: crispEdges;
     }
 
+
+    .selection-hub-right{
+        position: absolute;
+        width: 13rem;
+        right:2rem;
+    }
+
+      .selection-window{
+        display: flex;
+        flex-flow: column;
+        align-items: center;
+        height: 7rem;
+        border: transparent;
+        margin: 2rem 0;
+        padding: 0.5rem;
+        background-color:rgba(77, 77, 77, 0.264);
+        box-shadow: 0 4px 6px 0 rgba(50, 138, 175, 0.749);
+        border-radius: 0.4rem;
+      }
+      .selection-window .title{
+        position: absolute;
+        padding: 0.1rem 0.5rem;
+        background: rgba(4, 42, 66, 0.75);
+        transform: translate(0,-65%)
+      }
+      .selection-window .title p{
+        font-size: 1.2rem;
+        padding: 0.3rem;
+        color: rgb(236, 225, 123);
+        font-weight: 200;
+      }
+      .selection-window .content{
+        width: 60%;
+        margin: auto;
+      }
+      .select_lg {
+        align-items: center;
+        border: none;
+        outline: none;
+        height: 2rem;
+        line-height: 2rem;
+        padding-left: 2rem;
+        background-color: rgba(50, 138, 175, 0.749);
+        color:rgb(255, 255, 255);
+        font-size: 1.25rem;
+      }
+
 {% endblock %}
 
 
 {% comment %} HTML element {% endcomment %}
 
 {% block content %}
-{% comment %} <h1>overview</h1> {% endcomment %}
 
 <div class="page_container">
-    <div class = "graph_layout">
-        <div class = "graph_title country_graph">
-            <H3>Publication Collabration Over Country</H3>
-        </div>
-        <div class = "graph" id = "Country_Pie">
-            <svg id = "svg_cp"></svg>
+    <div class="selection-hub-right">
+        <div class="selection-window" style="width:auto">
+            <div class="title">
+                <p>Select Data</p>
+            </div>
+            <div class="content">
+                <select id="pie_type_btns" class="select_lg">
+                    <option value="country">country</option>
+                    <option value="university">university</option>
+                </select>
+            </div> 
         </div>
     </div>
+    <div class = "graph_layout" id = "Pie_Chart">
+        <h3 class = "graph_title" id = "pie_title">
+            Pie Chart of Publication Over Countries
+        </h3>
+        <div class = "graph" id = "PieChart">
+        </div>
+    </div>
+    <div class = "text_layout">
+        <h3 class = "graph_title">
+            Analysis of Publication Over Countries
+        </h3>
+    </div>
+</div>
+<div class="page_container">
+    <div class = "text_layout">
+        <div class = "graph_title">
+            <H3>Analysis of Publication Over Countries</H3>
+        </div>
+    </div>
+    
     <div class = "graph_layout">
         <div class = "graph_title">
             <H3>Publication Trend Over Years</H3>
@@ -175,16 +258,19 @@
 <script>
     var windowWidth = window.innerWidth
     var countryData = {{countryList|safe}};
+    var uniData = {{uniList|safe}}
    
 
-    var svg = d3.select("#svg_cp")
-        .append("g")
+    var svg_pie = d3.select("#PieChart")
+		.append("svg")
+        .attr("class","svg_pie")
+		.append("g")
 
-    svg.append("g")
+    svg_pie.append("g")
         .attr("class", "slices");
-    svg.append("g")
+    svg_pie.append("g")
         .attr("class", "labels");
-    svg.append("g")
+    svg_pie.append("g")
         .attr("class", "lines");
 
     var width = windowWidth/2,
@@ -205,25 +291,50 @@
         .innerRadius(radius * 0.9)
         .outerRadius(radius * 0.9);
 
-    svg.attr("transform", "translate(" + width / 2 + "," + height/1.7 + ")");
+    svg_pie.attr("transform", "translate(" + width / 2 + "," + height/1.9 + ")");
 
     var key = function(d){ return d.data.label; };
 
     var color = d3.scale.ordinal()
        .range(["#ff6666","#66b2ff","#6666ff","#b266ff","#ffb266", "#ffff66", "#b2ff66", "#66ff66", "#66ffb2", "#66ffff","#ff66ff","#ff66b2","#c0c0c0","#aaff66", "#b2ffdd", "#eeff66", "#66ffcc", "#66ddff",]);
 
-    function getCountryData (data){
-        return data.map(function(country){
-            return { label: country.key, value: country.value }
+    function getMapData(data){
+        return data.map(function(data){
+            return { label: data.key, value: data.value }
         });
     }
+    
+    var country = getMapData(countryData)
+    var uni = getMapData(uniData)
 
-    change(getCountryData(countryData));
+    
+    pieSwitch = true;
+    // $(".selection-window").click(function(){
+    //     pieSwitch = !pieSwitch
+    //     if(pieSwitch){
+    //         change(country);
+    //     }else{
+    //         change(uni);
+    //     }
+    // })
+    $("#pie_type_btns").change(function(){
+            var select = $("#pie_type_btns").val()
+            if(select == "country"){
+                $("#pie_title").text("Pie Chart of Publication Over Countries")
+                change(country);
+                
+            }else if(select == "university"){
+                $("#pie_title").text("Pie Chart of Publication Over Autralia Univerities")
+                change(uni);
+            }
+        });
 
+    change(country)
 
     function change(data) {
-    /* ------- PIE SLICES -------*/
-        var slice = svg.select(".slices").selectAll("path.slice")
+
+        /* ------- PIE SLICES -------*/
+        var slice = svg_pie.select(".slices").selectAll("path.slice")
             .data(pie(data), key);
 
         slice.enter()
@@ -244,18 +355,20 @@
 
         slice.exit()
             .remove();
+
         /* ------- TEXT LABELS -------*/
 
-        var text = svg.select(".labels").selectAll("text")
+        var text = svg_pie.select(".labels").selectAll("text")
             .data(pie(data), key);
 
         text.enter()
             .append("text")
             .attr("dy", ".35em")
+            .attr("class","pie_label")
             .text(function(d) {
-                return d.data.label + ": " + d.data.value;
+                return d.data.label +": "+ d.data.value;
             });
-
+        
         function midAngle(d){
             return d.startAngle + (d.endAngle - d.startAngle)/2;
         }
@@ -287,7 +400,7 @@
 
         /* ------- SLICE TO TEXT POLYLINES -------*/
 
-        var polyline = svg.select(".lines").selectAll("polyline")
+        var polyline = svg_pie.select(".lines").selectAll("polyline")
             .data(pie(data), key);
         
         polyline.enter()
@@ -313,6 +426,7 @@
 
 
 </script>
+
 
 <script>
 
@@ -340,10 +454,10 @@
 
 
     // add the SVG element
-    var svg = d3.select("#svg_yt")
+    var svg_bar = d3.select("#svg_yt")
         .attr("width", width + margin.left + margin.right)
         .attr("height", height + margin.top + margin.bottom)
-    .append("g")
+        .append("g")
         .attr("transform", 
             "translate(" + margin.left + "," + margin.top + ")");
 
@@ -362,7 +476,7 @@
     y.domain([0, d3.max(data, function(d) { return d.Freq; })]);
 
     // add axis
-    svg.append("g")
+    svg_bar.append("g")
         .attr("class", "x axis")
         .attr("transform", "translate(0," + height + ")")
         .call(xAxis)
@@ -372,7 +486,7 @@
         .attr("dy", "-.55em")
         .attr("transform", "rotate(-80)" );
 
-    svg.append("g")
+    svg_bar.append("g")
         .attr("class", "y axis")
         .call(yAxis)
         .append("text")
@@ -385,7 +499,7 @@
 
 
     // Add bar chart
-    svg.selectAll("bar")
+    svg_bar.selectAll("bar")
         .data(data)
         .enter().append("rect")
         .attr("class", "bar")
@@ -393,7 +507,14 @@
         .attr("width", x.rangeBand())
         .attr("y", function(d) { return y(d.Freq); })
         .attr("height", function(d) { return height - y(d.Freq); });
-
+    
+    svg_bar.selectAll("bar")
+        .data(data)
+        .enter().append("text")
+        .attr("x", function(d) { return x(d.Letter); })
+        .attr("y", function(d) { return y(d.Freq+7); })
+        .attr("class", "bar_label")
+        .text(function(d){return d.Freq})
     });
 
 </script>
