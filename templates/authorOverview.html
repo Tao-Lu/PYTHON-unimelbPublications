@@ -89,7 +89,6 @@
     var svg = d3.select('#svg_ov');
     d3.json("{% url "research_network" %}", function(error, graph) {
         if (!error) {
-            console.log('graph', graph);
             createV4SelectableForceDirectedGraph(svg, graph);
         } else {
             console.error(error);

@@ -55,11 +55,11 @@ def yearly_trend(request):
     couch = couchdb.Server("http://admin:password@45.113.234.42:5984")
     
     # TODO: papers over countries
-    url_country = BASE_URL + "paperinfo_scopus/_design/match/_view/PaperCountByYear?group=true"
+    url = BASE_URL + "paperinfo_scopus/_design/match/_view/PaperCountByYear?group=true"
     headers = {
         'Connection': 'close',
     }
-    dataRaw = requests.get(url_country, headers=headers)
+    dataRaw = requests.get(url, headers=headers)
     data = dataRaw.json()
     if(data != None):
         countryList = data['rows']
@@ -68,23 +68,45 @@ def yearly_trend(request):
     return JsonResponse(countryList, safe=False)
 
 def research_network(request):
-    with open("app/static/res/test.json",'r') as jsonfile:
-        data = json.load(jsonfile)
-        print(data['nodes'])
+    # TODO: get overview data
+    couch = couchdb.Server("http://admin:password@45.113.234.42:5984")
+    url_a = BASE_URL + "staffinfo_scopus/_design/search/_view/searchByName"
+    url_l = BASE_URL + "allinfo_scopus/_design/relationship/_view/cisAuthorAndCisAuthor?group_level=2"
+    headers = {
+        'Connection': 'close',
+    }
+    dataRaw_a = requests.get(url_a, headers=headers)
+    dataRaw_l = requests.get(url_l, headers=headers)
+
+    authorList = dataRaw_a.json()["rows"]
+    authorlinks = dataRaw_l.json()["rows"]
+    graphData = {}
+    author_dict = {}
+    graphData["nodes"] = list()
+    graphData["links"] = list()
+
+    for author in authorList:
+        author_dict[author['key']] = author['id']
+        graphData["nodes"].append({"id": author['id'],"name":author['key'], "group": 1})
+    
+    for link in authorlinks:
+        link_obj = {"source": link['key'][0], "target": link['key'][1], "value": link['value']}
+        graphData["links"].append(link_obj)
 
 
-    return JsonResponse(data, safe=False)
+
+    return JsonResponse(graphData, safe=False)
 
 def overview(request):
     # TODO: get overview data
     couch = couchdb.Server("http://admin:password@45.113.234.42:5984")
     
     # TODO: papers over countries
-    url_country = BASE_URL + "coauthorinfo_scopus/_design/countryCount/_view/countTotal?group=true&reduce=true"
+    url = BASE_URL + "coauthorinfo_scopus/_design/countryCount/_view/countTotal?group=true&reduce=true"
     headers = {
         'Connection': 'close',
     }
-    dataRaw = requests.get(url_country, headers=headers)
+    dataRaw = requests.get(url, headers=headers)
     data = dataRaw.json()
     if(data != None):
         countryList = data['rows']
