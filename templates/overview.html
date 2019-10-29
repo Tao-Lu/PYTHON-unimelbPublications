@@ -1,18 +1,402 @@
 {% extends 'base.html' %}
 # content for overview
 # 全部人的联系-d3的图图
- {% block css %}
-     .abc{
 
-     }
- {% endblock %}
+{% load staticfiles %}
+{% comment %}  src library {% endcomment %}
+{% block src %}
+    <script src= "{% static 'js/d3.v3.min.js' %}"></script>
+{% endblock src %}
+
+
+{% comment %} CSS style {% endcomment %}
+{% block css %}
+
+    .page_container{
+        display: flex;
+        flex-direction: row;
+        align-content:center;
+        width:100%;
+        border: transparent;
+        padding: 0.5rem;
+        box-shadow: 0 4px 6px 0 rgba(50, 138, 175, 0.749);
+        border-radius: 0.4rem;
+        background-color:rgba(180, 180, 139, 0.264);
+
+    }
+    
+    .graph_layout {
+        margin: auto;
+        width:100%
+        min-width: 800px;
+        flex:1
+    }
+
+    .graph_title {
+        text-align: center;
+        padding:0.75rem;
+        margin-bottom:1rem;
+
+    }
+    .wide_graph{
+        width:100%;
+        height: 500px;
+    }
+
+    {% comment %} direct graph  {% endcomment %}
+    #svg_ov {
+        border: 1px solid;
+        font: 13px sans-serif;
+        text-anchor: end;
+    }
+
+    #d3_selectable_force_directed_graph .node {
+        stroke: #fff;
+        stroke-width: 1.5px;
+    }
+
+    .node .selected {
+        stroke: black;
+    }
+
+    .link {
+        stroke: #999;
+    }
+
+
+
+    {% comment %} pie chart {% endcomment %}
+    .graph {
+        font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+        width:100%;
+        height:500px;
+    }
+
+
+
+    .labels{
+        font-size: 0.7rem;
+    }
+
+    #svg_cp{
+        width: 100%;
+        height: 100%;
+    }
+
+    path.slice{
+        stroke-width:2px;
+    }
+
+    polyline{
+        opacity: .3;
+        stroke: black;
+        stroke-width: 2px;
+        fill: none;
+    }
+
+    {% comment %} paper yearly trend{% endcomment %}
+    #svg_cp {
+        vetica Neue;
+        fill: #666;
+    }
+
+    .birthyear,
+    .age {
+        text-anchor: middle;
+    }
+
+    .birthyear {
+        fill: #fff;
+    }
+
+    rect {
+        fill-opacity: .6;
+        fill: #e377c2;
+    }
+
+    rect:first-child {
+        fill: #1f77b4;
+    }
+
+
+    {% comment %} yearly publication trend {% endcomment %}
+
+    #svg_yt {
+        font: 10px sans-serif;
+    }
+
+    .bar{
+    fill: steelblue;
+    }
+
+    .bar:hover{
+        fill: brown;
+    }
+
+    .axis {
+    font: 10px sans-serif;
+    }
+
+    .axis path,
+    .axis line {
+    fill: none;
+    stroke: #000;
+    shape-rendering: crispEdges;
+    }
+
+{% endblock %}
+
+
+{% comment %} HTML element {% endcomment %}
+
 {% block content %}
+{% comment %} <h1>overview</h1> {% endcomment %}
 
-<h1>overview</h1>
-    <p class = "abc">
+<div class="page_container">
+    <div class = "graph_layout">
+        <div class = "graph_title country_graph">
+            <H3>Publication Collabration Over Country</H3>
+        </div>
+        <div class = "graph" id = "Country_Pie">
+            <svg id = "svg_cp"></svg>
+        </div>
+    </div>
+    <div class = "graph_layout">
+        <div class = "graph_title">
+            <H3>Publication Trend Over Years</H3>
+        </div>
+        <div class = "graph" id = "Year_Trend">
+            <svg id = "svg_yt"></svg>
+        </div>
+    </div>
+</div>
 
-    </p>
+
+<script>
+    var windowWidth = window.innerWidth
+    var countryData = {{countryList|safe}};
+   
+
+    var svg = d3.select("#svg_cp")
+        .append("g")
+
+    svg.append("g")
+        .attr("class", "slices");
+    svg.append("g")
+        .attr("class", "labels");
+    svg.append("g")
+        .attr("class", "lines");
+
+    var width = windowWidth/2,
+        height = windowWidth/4
+        radius = Math.min(width, height) / 2;
+
+    var pie = d3.layout.pie()
+        .sort(null)
+        .value(function(d) {
+            return d.value;
+        });
+
+    var arc = d3.svg.arc()
+        .outerRadius(radius * 0.7)
+        .innerRadius(radius * 0.2);
+
+    var outerArc = d3.svg.arc()
+        .innerRadius(radius * 0.9)
+        .outerRadius(radius * 0.9);
+
+    svg.attr("transform", "translate(" + width / 2 + "," + height/1.7 + ")");
+
+    var key = function(d){ return d.data.label; };
+
+    var color = d3.scale.ordinal()
+       .range(["#ff6666","#66b2ff","#6666ff","#b266ff","#ffb266", "#ffff66", "#b2ff66", "#66ff66", "#66ffb2", "#66ffff","#ff66ff","#ff66b2","#c0c0c0","#aaff66", "#b2ffdd", "#eeff66", "#66ffcc", "#66ddff",]);
+
+    function getCountryData (data){
+        return data.map(function(country){
+            return { label: country.key, value: country.value }
+        });
+    }
+
+    change(getCountryData(countryData));
+
+
+    function change(data) {
+    /* ------- PIE SLICES -------*/
+        var slice = svg.select(".slices").selectAll("path.slice")
+            .data(pie(data), key);
+
+        slice.enter()
+            .insert("path")
+            .style("fill", function(d) { return color(d.data.label); })
+            .attr("class", "slice");
+
+        slice		
+            .transition().duration(1000)
+            .attrTween("d", function(d) {
+                this._current = this._current || d;
+                var interpolate = d3.interpolate(this._current, d);
+                this._current = interpolate(0);
+                return function(t) {
+                    return arc(interpolate(t));
+                };
+            })
+
+        slice.exit()
+            .remove();
+        /* ------- TEXT LABELS -------*/
+
+        var text = svg.select(".labels").selectAll("text")
+            .data(pie(data), key);
+
+        text.enter()
+            .append("text")
+            .attr("dy", ".35em")
+            .text(function(d) {
+                return d.data.label + ": " + d.data.value;
+            });
+
+        function midAngle(d){
+            return d.startAngle + (d.endAngle - d.startAngle)/2;
+        }
+
+        text.transition().duration(1000)
+            .attrTween("transform", function(d) {
+                this._current = this._current || d;
+                var interpolate = d3.interpolate(this._current, d);
+                this._current = interpolate(0);
+                return function(t) {
+                    var d2 = interpolate(t);
+                    var pos = outerArc.centroid(d2);
+                    pos[0] = radius * (midAngle(d2) < Math.PI ? 1 : -1);
+                    return "translate("+ pos +")";
+                };
+            })
+            .styleTween("text-anchor", function(d){
+                this._current = this._current || d;
+                var interpolate = d3.interpolate(this._current, d);
+                this._current = interpolate(0);
+                return function(t) {
+                    var d2 = interpolate(t);
+                    return midAngle(d2) < Math.PI ? "start":"end";
+                };
+            });
+
+        text.exit()
+            .remove();
+
+        /* ------- SLICE TO TEXT POLYLINES -------*/
+
+        var polyline = svg.select(".lines").selectAll("polyline")
+            .data(pie(data), key);
+        
+        polyline.enter()
+            .append("polyline");
+
+        polyline.transition().duration(1000)
+            .attrTween("points", function(d){
+                this._current = this._current || d;
+                var interpolate = d3.interpolate(this._current, d);
+                this._current = interpolate(0);
+                return function(t) {
+                    var d2 = interpolate(t);
+                    var pos = outerArc.centroid(d2);
+                    pos[0] = radius * 0.95 * (midAngle(d2) < Math.PI ? 1 : -1);
+                    return [arc.centroid(d2), outerArc.centroid(d2), pos];
+                };			
+            });
+        
+        polyline.exit()
+            .remove();
+    };
+
+
+
+</script>
+
 <script>
 
-        </script>
+    // set the dimensions of the canvas
+    var margin = {top: 50, right: 50, bottom: 50, left: 50},
+        width = windowWidth/2 - margin.left - margin.right,
+        height = windowWidth/4 - margin.top - margin.bottom;
+
+
+    // set the ranges
+    var x = d3.scale.ordinal().rangeRoundBands([0, width], .05);
+
+    var y = d3.scale.linear().range([height, 0]);
+
+    // define the axis
+    var xAxis = d3.svg.axis()
+        .scale(x)
+        .orient("bottom")
+
+
+    var yAxis = d3.svg.axis()
+        .scale(y)
+        .orient("left")
+        .ticks(10);
+
+
+    // add the SVG element
+    var svg = d3.select("#svg_yt")
+        .attr("width", width + margin.left + margin.right)
+        .attr("height", height + margin.top + margin.bottom)
+    .append("g")
+        .attr("transform", 
+            "translate(" + margin.left + "," + margin.top + ")");
+
+    
+
+    // load the data
+    d3.json("{% url "yearly_trend" %}", function(error, data) {
+    
+        data.forEach(function(d) {
+            d.Letter= d["key"];
+            d.Freq = +d["value"];
+        });
+        
+    // scale the range of the data
+    x.domain(data.map(function(d) { return d.Letter; }));
+    y.domain([0, d3.max(data, function(d) { return d.Freq; })]);
+
+    // add axis
+    svg.append("g")
+        .attr("class", "x axis")
+        .attr("transform", "translate(0," + height + ")")
+        .call(xAxis)
+        .selectAll("text")
+        .style("text-anchor", "end")
+        .attr("dx", "-.8em")
+        .attr("dy", "-.55em")
+        .attr("transform", "rotate(-80)" );
+
+    svg.append("g")
+        .attr("class", "y axis")
+        .call(yAxis)
+        .append("text")
+        .attr("transform", "rotate(0)")
+        .attr("y", 15)
+        .attr("x" ,15)
+        .attr("dy", "0.5em")
+        .style("text-anchor", "start")
+        .text("Paper Number");
+
+
+    // Add bar chart
+    svg.selectAll("bar")
+        .data(data)
+        .enter().append("rect")
+        .attr("class", "bar")
+        .attr("x", function(d) { return x(d.Letter); })
+        .attr("width", x.rangeBand())
+        .attr("y", function(d) { return y(d.Freq); })
+        .attr("height", function(d) { return height - y(d.Freq); });
+
+    });
+
+</script>
+
+
 {% endblock %}
