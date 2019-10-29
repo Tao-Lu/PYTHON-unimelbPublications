@@ -1,42 +1,50 @@
 {% extends 'base.html' %}
-# content for author overview
+{% block css %}
 
-# author count, paper count for each author -- bar chart
-# 类似于 cis 网站
-# 作者名字可以点击，跳转authordetails
-# key:id, value: [name，type , email]
+    .clickable:hover {text-decoration: underline; cursor: pointer; color:blue; font-weight:bold}
 
-# 如果全部可以画出，不然，top 30 排序paper数量
+{% endblock %}
 
-# 每个作者被cited多少次
-# 如果全部可以画出，不然，top 30 排序cited
-
-# 待定
-# coauthor的数量
 {% block content %}
-
+<div class="col-md-10"  style=" margin-top:20px; margin-left: 60px; margin-bottom: 20px">
     <h2 style="margin-top:30px">CIS Authors</h2>
         <table id="cisauthors" class="table table-striped table-bordered" style="margin-bottom:30px">
             <thead>
                 <tr>
-                    <th>Co-Authors</th>
-                    <th>Co-Authored Documents</th>
+                    <th>Name</th>
+                    <th>Staff Type</th>
+                    <th>Email</th>
+                    <th>Total Paper Counts</th>
+                    <th>Total Cited Counts</th>
                 </tr>
             </thead>
-                    <tbody id="tbodyCoauthor">
-                        {% for coauthor in authordetailsDict.coauthorlist %}
-{#                            <tr class="coauthor pointer" id={{ coauthor.id }}>#}
-                            <tr class="coauthor" id={{ coauthor.id }} cis={{ coauthor.authorType }}>
-                                <td class="coauthorName clickable">{{ coauthor.name }}</td>
-                                <td class="coauthorPaper clickable">{{ coauthor.papercount }}</td>
-{#                                <td class="pointer">{{ coauthor.name }}</td>#}
-{#                                <td class="pointer">{{ coauthor.papercount }}</td>#}
-                            </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
+            <tbody id="tbodyCisauthor">
+                {% for cisauthor in cisAuthorDictList %}
+                    <tr class="cisauthor">
+                        <td class="coauthorName clickable" id={{ cisauthor.id }}>{{ cisauthor.name }}</td>
+                        <td class="coauthorStaffType ">{{ cisauthor.staffType }}</td>
+                        <td class="coauthorEmail ">{{ cisauthor.email }}</td>
+                        <td class="coauthorDocumentCounts ">{{ cisauthor.documentCounts }}</td>
+                        <td class="coauthorCitedCounts ">{{ cisauthor.citedCounts }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+    <script>
+
+        $('#cisauthors').DataTable();
+        {#$('#coauthorlist_paginate').hide();#}
+        $('#tbodyCisauthor').on('click', '.coauthorName', function () {
+            var cisauthorId = $(this).attr('id');
+            console.log(cisauthorId);
+            var host = location.host;
+            var url = "http://" + host + "/authorDetails/" + cisauthorId;
+            window.location.href = url;
+        });
 
 
-
+    </script>
+</div>
 
 {% endblock %}

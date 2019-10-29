@@ -28,7 +28,21 @@ def homepage(request):
 
 
 def authorOverview(request):
-    return render(request, 'authorOverview.html')
+    cisAuthorUrl = "http://45.113.234.42:5984/staffinfo_scopus/_design/search/_view/details"
+    headers = {
+        'Connection': 'close',
+    }
+    cisAuthors = requests.get(cisAuthorUrl, headers=headers)
+    cisAuthorsList = cisAuthors.json()['rows']
+
+    cisAuthorDictList = []
+    for cisauthor in cisAuthorsList:
+        cisAuthorDict = {"id": cisauthor['key'], "name": cisauthor['value'][0], "staffType": cisauthor['value'][1],
+                         "email": cisauthor['value'][2], "documentCounts": cisauthor['value'][3],
+                         "citedCounts": cisauthor['value'][4]}
+        cisAuthorDictList.append(cisAuthorDict)
+
+    return render(request, 'authorOverview.html', {"cisAuthorDictList": cisAuthorDictList})
 
 
 def aboutUs(request):
