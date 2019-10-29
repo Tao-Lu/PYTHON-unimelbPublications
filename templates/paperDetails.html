@@ -12,48 +12,77 @@
     <div id="paperDetails" style="margin: 10px; padding: 10px;">
 
         <h2 id="title">
-            {{paperdetailsDict.title}}
+            <b>{{paperdetailsDict.title}}</b>
         </h2>
         <h4 id="year">
-            Published Year: {{paperdetailsDict.coverDateYear}}
+            <b>Published Year: </b>{{paperdetailsDict.coverDateYear}}
         </h4>
         <section id="authorlist">
             <ul id="cisauthorlist" >
                 <h5>
-                    CIS Author(s)
+                    <b>CIS Author(s)</b>
                 </h5>
                 {% for cisAuthor in paperdetailsDict.CISAuthors %}
                     <!--can be clicked-->
 {#                    <li style="display: inline-block">#}
-                    <li class="cisauthor clickable" id={{ cisAuthor.id }}>
-                        {{ cisAuthor.name }}
+                    <li>
+                        <span class="cisauthor clickable" id={{ cisAuthor.id }}>
+                            {{ cisAuthor.name }}
+                        </span>
                     </li>
                 {% endfor %}
             </ul>
 
             <ul id="coauthorlist">
                 <h5>
-                    All Author(s)
+                    <b>All Author(s)</b>
                 </h5>
                 {% for coAuthor in paperdetailsDict.co_author %}
-                    <!--cannot be clicked-->
+                    <!--can be clicked-->
                     <li>
-                        {{ coAuthor.name }}
+                        <span class="allauthor clickable" id={{ coAuthor.id }} authorType={{ coAuthor.authorType }}>
+                            {{ coAuthor.name }}
+                        </span>
+
                     </li>
                 {% endfor %}
             </ul>
         </section>
-        <h6 id="citedCount">
-            cited count: {{paperdetailsDict.cite_count}}
+        <h6 id="citedCount" style="margin-bottom: 30px">
+            <b>Cited Count: </b>
+            <span class="badge badge-pill badge-info">
+                {{paperdetailsDict.cite_count}}
+            </span>
         </h6>
-        <h6 id="paperType">
-            paper type: {{paperdetailsDict.paper_type}}
+
+        <h6 id="keyword" style="margin-top:10px">
+            <b>Keywords: </b>
+                {% for keyword in paperdetailsDict.keyword %}
+                    <span class="badge badge-pill badge-success">
+                        {{keyword}}
+                    </span>
+                {% endfor %}
         </h6>
+
+        <h6 id="paperType" style="margin-bottom: 30px">
+            <b>Paper Type: </b>
+            <span class="badge badge-pill badge-dark">
+                {{paperdetailsDict.paper_type}}
+            </span>
+        </h6>
+
         <hr style="height: 2px; border: none; border-top: 2px dashed #185598;" />
-        <h5>Abstract</h5>
-        <p id="abstract">
+        <h6><b>Abstract</b></h6>
+        <p id="abstract" style="margin-bottom: 20px">
             {{paperdetailsDict.abstract}}
         </p>
+
+        <h4>
+            <b>Click Here For More Recommended Publications -> </b>
+            <span id="recommended" class="badge badge-primary">
+                recommended publications
+            </span>
+        </h4>
 
     </div>
 
@@ -69,11 +98,34 @@
                 window.location.href = url;
             });
 
+
+            $('.allauthor').on('click', function () {
+                var authorId = $(this).attr('id');
+                var authorType = $(this).attr('authorType');
+                console.log(authorId);
+                console.log(authorType);
+
+                var host = location.host;
+                if(authorType == "Y"){
+                    var url = "http://" + host + "/authorDetails/" + authorId;
+                    window.location.href = url;
+                }
+                else{
+                    var url = "http://" + host + "/coAuthorDetails/" + authorId;
+                    window.location.href = url;
+                }
+            });
+            
+            $('#recommended').on('click', function () {
+                var paperId = location.href.split('/');
+                paperId = paperId[paperId.length-1];
+                console.log(paperId);
+                var host = location.host;
+                var url = "http://" + host + "/recommmendedPapers/" + paperId;
+                window.location.href = url;
+            });
+
         });
-
-
-
-
 
     </script>
 
