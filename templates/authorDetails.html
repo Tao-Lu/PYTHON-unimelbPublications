@@ -11,6 +11,8 @@
 
 {% block src %}
 {#        <script src="{% static 'js/d3.js' %}"></script>#}
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <link rel="stylesheet" href="{% static 'css/bootstrap-responsive.min.css' %}">
         <script src="{% static 'js/d3.layout.js' %}"></script>
         <script src="{% static 'js/d3.geom.js' %}"></script>
         <script src="{% static 'js/detector.js' %}"></script>
@@ -142,26 +144,28 @@
             window.location.href = url;
         });
 
-    });
-
-
-
-    var coauthorList = {{ authordetailsDict.coauthorlist | safe}};
+         var coauthorList = {{ authordetailsDict.coauthorlist | safe}};
     var children = [];
     for(var i in coauthorList){
         children.push({"name":coauthorList[i]["name"], "size":coauthorList[i]["papercount"]});
     }
-    {#var a = {{authordetailsDict.fullName | safe}}.toString();#}
+    var CisName = "{{authordetailsDict.fullName}}";
+
     {#var authorName = {{authordetailsDict.fullName | safe}};#}
-    {#console.log(a)#}
+
     {#css problem, cis author name problem#}
-    var jsonData = {"name":"richard","children":children};
+    var jsonData = {"name":CisName,"children":children};
 
     var height = document.getElementById("authorRelationship").offsetHeight;
     var width = document.getElementById("authorRelationship").offsetWidth;
 
     var myFlower = new CodeFlower("#authorRelationship", width, height);
     myFlower.update(jsonData);
+    });
+
+
+
+
 
 
 

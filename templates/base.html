@@ -16,10 +16,11 @@
     <script src="{% static 'js/dataTables.bootstrap4.min.js' %}"></script>
     <script src="{% static 'js/jquery-3.3.1.js' %}"></script>
     <script src="{% static 'js/jquery.dataTables.min.js' %}"></script>
-    <script src="{% static 'js/jquery.caret.min.js' %}"></script>
     <script src="{% static 'js/jquery.tag-editor.js' %}"></script>
     <script src="{% static 'js/jquery.tag-editor.min.js' %}"></script>
     <script src="{% static 'js/d3.v3.min.js' %}"></script>
+
+
     {% block src %}{% endblock src %}
 
     <style>
@@ -31,6 +32,20 @@
             z-index: 1;
             width: 100%;
         }
+
+#searchDiv{
+    display: flex;
+    width:20rem;
+    height: 2.1rem;
+    margin-right: 1rem;
+    background: white;
+}
+#searchBox{
+    align-content: start;
+    height: 100%;
+    width: 100%;
+}
+
 
         {% block css %}{% endblock %}
 
@@ -69,8 +84,9 @@
                     <option value="title">Title</option>
                     <option value="keywords">Keywords</option>
                 </select>
-
-                <input class="form-control mr-sm-2" type="text" placeholder="Search" id="searchBox">
+                <div  id="searchDiv">
+                    <input class=" mr-sm-2" type="text" placeholder="Search" id="searchBox">
+                </div>
 
                 <button class="btn btn-secondary my-2 my-sm-0" type="button" id="searchdb">Search</button>
 
@@ -91,7 +107,6 @@
         var st = document.body.scrollTop || document.documentElement.scrollTop;
         obj.setAttribute("data-fixed",st >= ot?"fixed":"")
     }
-
 
     $('#searchdb').on('click',function(){
        var searchKey = document.getElementById("searchBox").value;
@@ -124,9 +139,11 @@
         var searchBy = document.getElementById("searchSelect").value;
         if (searchBy == 'keywords'){
             $('input').tagEditor({
-                placeholder:"Please enter keywords and follow by enter."
+                placeholder: "please enter some keywords"
             });
+
         }else{
+
             $('input').tagEditor('destroy');
         }
     });
@@ -152,7 +169,9 @@
             window.location.href = url;
 
         }
-    })
+    });
+
+
 
 
 
