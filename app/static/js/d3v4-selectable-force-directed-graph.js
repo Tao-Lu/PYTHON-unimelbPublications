@@ -24,7 +24,7 @@ function createV4SelectableForceDirectedGraph(svg, graph) {
     var rect = gMain.append('rect')
     .attr('width', parentWidth)
     .attr('height', parentHeight)
-    .style('fill', 'white')
+    .style('fill', '#e5e5e5')
 
     var gDraw = gMain.append('g');
 
@@ -69,6 +69,7 @@ function createV4SelectableForceDirectedGraph(svg, graph) {
         .selectAll("circle")
         .data(graph.nodes)
         .enter().append("circle")
+        .attr("class","node")
         .attr("r", 5)
         .attr("fill", function(d) { 
             if ('color' in d)
@@ -89,7 +90,9 @@ function createV4SelectableForceDirectedGraph(svg, graph) {
                 return d.name;
             else
                 return d.id; 
-        });
+        })
+        .attr("class","name_tag")
+
         
 
     var simulation = d3v4.forceSimulation()

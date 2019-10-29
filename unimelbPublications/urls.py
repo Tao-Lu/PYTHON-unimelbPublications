@@ -35,5 +35,7 @@ urlpatterns = [
     re_path(r'^keywordsCandidate/(.+)$', views.searchKeywords, name='searchKeyword'),
     re_path(r'^recommmendedPapers/(.+)$', views.recommmendedPapers, name='recommmendedPapers'),
     url(r'^yearly_trend', views.yearly_trend, name='yearly_trend'),
-    url(r'^research_network', views.research_network, name='research_network')
+    url(r'^research_network', views.research_network, name='research_network'),
+    url(r'^topic_overview', views.topic_overview, name='topic_overview')
+    
 ]

@@ -100,6 +100,40 @@ def research_network(request):
 
     return JsonResponse(graphData, safe=False)
 
+def topic_overview(request):
+    # TODO: get overview data
+    couch = couchdb.Server("http://admin:password@45.113.234.42:5984")
+    url_t = BASE_URL + "paperinfo_scopus/_design/match/_view/matchTopic?group=true"
+    url_k = BASE_URL + "paper_topic/_design/topics/_view/all_topic_keywords"
+    headers = {
+        'Connection': 'close',
+    }
+    dataRaw_t = requests.get(url_t, headers=headers)
+    dataRaw_k = requests.get(url_k, headers=headers)
+
+    topicNumList = dataRaw_t.json()["rows"]
+    keywordList = dataRaw_k.json()["rows"]
+
+    graphData = {}
+    graphData["name"] = "topics"
+    graphData["children"] = list()
+    scoreMap = {}
+    for num in topicNumList:
+        id = num['key']
+        scoreMap[id] = num['value']
+        topic_obj = {"name": id,"children": []}
+        graphData["children"].append(topic_obj)
+        
+    for topic in keywordList:
+        id = int(topic['id'])
+        score = scoreMap[id]
+        for keyword in topic['key']:
+            kw_obj = {"name": keyword, "size": score}
+            graphData["children"][id]["children"].append(kw_obj)
+
+
+    return JsonResponse(graphData, safe=False)
+
 def overview(request):
     # TODO: get overview data
     couch = couchdb.Server("http://admin:password@45.113.234.42:5984")
