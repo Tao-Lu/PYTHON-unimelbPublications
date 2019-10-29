@@ -59,6 +59,14 @@ def yearly_trend(request):
         countryList = {}
     return JsonResponse(countryList, safe=False)
 
+def research_network(request):
+    with open("app/static/res/test.json",'r') as jsonfile:
+        data = json.load(jsonfile)
+        print(data['nodes'])
+
+
+    return JsonResponse(data, safe=False)
+
 def overview(request):
     # TODO: get overview data
     couch = couchdb.Server("http://admin:password@45.113.234.42:5984")
