@@ -13,11 +13,25 @@
             {% for paper in coauthoredpaperinfoList %}
                 <h3 class="paperResult clickable" style="margin-top: 10px" id={{ paper.id }}>{{ paper.title }}</h3>
                 <h5 style="margin-top:5px">{{ paper.year }}</h5>
-                {% for cisauthor in paper.cisAuthors %}
-                    <p class="cisAuthors clickable" id={{ cisauthor.id }}><b>CIS Authors:</b> {{ cisauthor.name }}</p>
-                {% endfor %}
+
+
+                <p class="cisAuthors" >
+                    <b>CIS Authors:</b>
+                    {% for cisauthor in paper.cisAuthors %}
+                        <span class="clickable" id={{ cisauthor.id }}>
+                            {{ cisauthor.name }}
+                        </span>
+                        <span> | </span>
+                    {% endfor %}
+                </p>
+
                 <h5>Abstract:</h5>
                 <p style="margin-bottom: 20px">{{ paper.abstract }}...</p>
+                <h6 style="margin-top:10px">
+                    {% for word in paper.keyword %}
+                        <span class="badge badge-pill badge-success">{{word}}</span>
+                    {% endfor %}
+                </h6>
                 <h5 style="margin-bottom: 30px"><span class="badge badge-pill badge-dark">{{ paper.paperType }}</span></h5>
             {% endfor %}
         </div>
