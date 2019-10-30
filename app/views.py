@@ -138,14 +138,17 @@ def topic_overview(request):
         id = num['key']
         scoreMap[id] = num['value']
         topic_obj = {"name": id,"children": []}
-        graphData["children"].append(topic_obj)
+        graphData["children"].append({"name":id,"children":[]})
         
     for topic in keywordList:
         id = int(topic['id'])
         score = scoreMap[id]
+        keywords = ""
+    
         for keyword in topic['key']:
-            kw_obj = {"name": keyword, "size": score}
-            graphData["children"][id]["children"].append(kw_obj)
+            keywords += keyword+", "
+        kw_obj = {"name": keywords, "size": score}
+        graphData["children"][id]["children"].append(kw_obj)
 
 
     return JsonResponse(graphData, safe=False)
