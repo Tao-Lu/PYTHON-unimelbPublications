@@ -14,20 +14,9 @@
     <script src="{% static 'js/bootstrap.bundle.js' %}"></script>
 </head>
 <style>
-    .container {
-  position: relative;
-  width: 100%;
-}
-
-.container img
-{
-    width: 100%;
-    max-height: 80%;
-    top: 0;
-    left: 0;
-}
-    .container btn{
-        position: absolute;
+    .clickable:hover {cursor: pointer; font-weight:bold}
+.btn {
+  position: absolute;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
@@ -39,28 +28,41 @@
   border: none;
   cursor: pointer;
   border-radius: 5px;
+  text-align: center;
+}
+    h1{
+        color: white;
+        text-decoration: underline;
+        position: absolute;
+        top: 48%;
+        left: 45%;
+        transform: translate(-45%, -80%);
+        {#-ms-transform: translate(-50%, -50%);#}
+        text-align: center;
+        margin-left: 35px;;
+    }
+
+    h2{
+        color: white;
+        text-decoration: underline;
+        position: absolute;
+        top: 60%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        -ms-transform: translate(-50%, -50%);
+        text-align: center;
+        margin-top: 30px;
     }
 
 </style>
 <body>
-{#    <div id="shang" style="text-align: center">#}
-{#        <img src="{% static "res/title.PNG" %}" style="max-width: 100%; max-height: 100% " class="img-responsive" />#}
-{#    </div>#}
+    <div id="zhong" >
+        <img src="{% static "res/newBackground.jpg" %}" style="max-width: 100%; height:auto" class="img-responsive" />
+        <h1><b> Unimelb Publication Analysis</b></h1>
 
-    <div id="zhong" class="container">
-        <img src="{% static "res/newBackground.jpg" %}" class="img-responsive" />
-        <button type="button" class="btn" >Click Me!</button>
+         <a href="{% url 'overview' %}">
+             <h2><span id="clickable">Computing and Information System Department</span></h2>
+         </a>
     </div>
-
-{#    <div id="xia" style="text-align: center">#}
-{#        <a href="{% url 'overview' %}">#}
-{#            <button type="button" >Click Me!</button>#}
-{#        </a>#}
-{##}
-{#    </div>#}
-
-
-
-
 </body>
 </html>

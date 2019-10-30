@@ -2,7 +2,7 @@
 # content for paper details
 # title, year, CIS author, all author, cited count, paper type, full abstract
 {% block css %}
-    .clickable:hover {text-decoration: underline; cursor: pointer; color:blue;}
+    .clickable:hover {text-decoration: underline; cursor: pointer; color:#000080;}
     #title {text-decoration: underline;}
      h2 {
   line-height: 1.45;
@@ -18,7 +18,7 @@
         <h2 id="title">
             <b>{{paperdetailsDict.title}}</b>
         </h2>
-        <h4 id="year">
+        <h4 id="year" style="margin-top:20px">
             <b>Published Year: </b>{{paperdetailsDict.coverDateYear}}
         </h4>
         <section id="authorlist">
@@ -73,18 +73,19 @@
             </span>
         </h6>
 
+        <h4>
+            <button id="recommended" type="button" class="btn btn-outline-primary">
+                <b>Click to view more relevant paper</b>
+            </button>
+        </h4>
+
         <hr style="height: 2px; border: none; border-top: 2px dashed #185598;" />
         <h6><b>Abstract</b></h6>
         <p id="abstract" style="margin-bottom: 20px">
             {{paperdetailsDict.abstract}}
         </p>
 
-        <h4>
-            <b>Click Here For More Recommended Publications -> </b>
-            <span id="recommended" class="badge badge-primary">
-                recommended publications
-            </span>
-        </h4>
+
 
     </div>
 

@@ -39,7 +39,7 @@
 
                     {% for word in item.keyword %}
 
-                        <span class="badge badge-pill keyword" id={{ word }}>{{word}}</span>
+                        <span class="badge badge-pill keyword {{ word }}">{{word}}</span>
 
                     {% endfor %}
                 </h6>
@@ -67,7 +67,15 @@
         });
 
         $('.keyword').on('click',function(){
-            var searchTerm = $(this).attr('id');
+            var searchTerm = this.className;
+            searchTerm = searchTerm.replace('badge','');
+            searchTerm = searchTerm.replace('badge-pill','');
+            searchTerm = searchTerm.replace('keyword','');
+            searchTerm = searchTerm.replace('badge-success','');
+            searchTerm = searchTerm.replace('badge-info','');
+            searchTerm = searchTerm.replace('badge-primary','');
+            searchTerm = searchTerm.replace('   ','');
+            console.log(searchTerm);
             var host = location.host;
             var url = "http://"+host+"/keywordsCandidate/"+searchTerm;
             window.location.href = url;
