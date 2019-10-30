@@ -5,7 +5,7 @@
 # todo: add author photo
 {% block css %}
 
-    .clickable:hover {text-decoration: underline; cursor: pointer; color:blue; font-weight:bold}
+    .clickable:hover {text-decoration: underline; cursor: pointer; color:#000080;}
 
 {% endblock %}
 
@@ -28,9 +28,9 @@
             <div id="authorDetails" style="padding: 10px; margin-top: 10px;" class="col-md-4">
 
                 <h2 id="name">
-                    {{authordetailsDict.fullName}}
+                    <b>{{authordetailsDict.fullName}}</b>
                 </h2>
-                <h4 id="orcid">
+                <h4 id="orcid" style="margin-top:20px">
                     ORCID: {{authordetailsDict.orcid}}
                 </h4>
                 <h4 id="email">
@@ -54,7 +54,7 @@
 
         </div>
     <br>
-    <hr style="background-color: black; height: 2px;">
+    <hr style="background-color: black; height: 1.5px;">
     <br>
         <div class="row">
             <div class="col-md-12">
@@ -93,6 +93,8 @@
                         {% endfor %}
                     </tbody>
                 </table>
+            <br />
+            <br/>
             </div>
         </div>
 

@@ -32,7 +32,7 @@
     <script>
     $(document).ready(function() {
         $('#example').DataTable();
-        $('#example_paginate').hide();
+
         $('#tbodyDataRow').on('click', '.dataRow', function () {
             var scopusId = $(this).closest('tr').attr('id');
             console.log(scopusId);

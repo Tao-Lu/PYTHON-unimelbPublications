@@ -1,8 +1,78 @@
 {% extends 'base.html' %}
 # content for about us
 
+{% block css %}
+    .subtitle{
+        text-decoration: underline;
+        font-weight: bold;
+        margin-left: 30px;
+    }
+
+    p{
+        margin-left: 30px;
+        margin-right: 30px;
+        margin-top: 20px;
+    }
+
+    li{
+        margin-left: 30px;
+    }
+    .link{
+        text-decoration: underline;
+    }
+{% endblock %}
+
 {% block content %}
 
-<h3>about us</h3>
+    <div class="col-md-10" style="margin-left: 100px; margin-top: 30px">
+        <div class="jumbotron">
+            <h3 class="display-3">What can you do with this site</h3>
+            <hr class="my-4">
+            <p>
+                The overview page gives a dashboard look across entire department.
+                This include the statistic of cooperation with affiliation within Australia,
+                total number of publication each year from 1979, popularity of topic...
+            </p>
 
+            <p>
+                If you are unfamiliar with Unimelb Computing and Information System department,
+                simply view our <a class="link" href={% url 'authorOverview' %}>Author</a> page to explore all of the staff.
+            </p>
+            <h5 class="subtitle">To search a particular item: </h5>
+            <li>
+                Enter a name in the search bar, and choose one from all the result that match the search term.
+                Simply click on the author name to view its details.
+            </li>
+            <br>
+            <li>
+                Enter a title or some part of a title to search the paper. Click on the search result to view the
+                detail of the paper.
+            </li>
+            <br>
+            <li>
+                Enter some keywords in the search bar to search for relevant papers. Click on the search result to
+                view the detail of the paper.
+            </li>
+            <br>
+
+            <h5 class="subtitle">Author Detail:</h5>
+            <p>
+                Beside the basic information of an author, all its publications all listed, click to view the details.
+                All the other authors it has cooperated with all listed with number of papers they written.
+                <br>
+                Click the name of co-author to view the detail, and the number to view the paper they cooperate.
+            </p>
+
+            <h5 class="subtitle">Paper Detail:</h5>
+            <p>
+                This page includes all the information of the selected paper.
+                <br>
+                You can view other relevant paper to the current one by clicking "view other relevant paper" button.
+            </p>
+
+            <a style="margin-left: 30px;" class="btn btn-primary btn-lg" href={% url 'overview' %} role="button">
+                <span id="link">Start to Explore</span></a>
+            </p>
+        </div>
+    </div>
 {% endblock %}
