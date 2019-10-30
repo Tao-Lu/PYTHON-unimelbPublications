@@ -233,6 +233,29 @@ def authorDetails(request, searchStr):
 
     authordetailsDict['coauthorlist'] = idCoauthoredList
 
+    ########################################
+
+    nodes = []
+    links = []
+    totalCountsPaper = 0
+    for co_author in idCoauthoredList:
+        totalCountsPaper += co_author['papercount']
+        nodes.append({"id": co_author["name"], "paperCounts": co_author["papercount"],  "group": 1},)
+    nodes.append({"id": authordetails['fullName'], "paperCounts": totalCountsPaper, "group": 1}, )
+
+    for i in range(0, len(nodes)-1):
+        links.append({"source": nodes[i]["id"], "target": nodes[-1]["id"], "value": nodes[i]["paperCounts"]})
+
+    jsonData = {"nodes": nodes, "links": links}
+
+    authordetailsDict["jsonData"] = jsonData
+
+
+
+
+
+    ##########################################
+
     return render(request, 'authorDetails.html', {'authordetailsDict': authordetailsDict})
 
 
