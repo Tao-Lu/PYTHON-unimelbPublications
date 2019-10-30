@@ -19,13 +19,10 @@
         width:100%;
         border: transparent;
         padding: 0.5rem;
-        box-shadow: 0 4px 6px 0 rgba(50, 138, 175, 0.749);
-        border-radius: 0.4rem;
         background-color:rgba(180, 180, 139, 0.264);
 
     }
     .container_high{
-        height: 1000px;
     }
 
 
@@ -35,9 +32,12 @@
         min-width: 800px;
         flex:1
     }
+    .text-paragraph{
+        width:70%;
+        margin:auto;
+    }
     
     .graph_layout {
-        padding:3rem;
         margin: auto;
         width:100%
         min-width: 800px;
@@ -81,7 +81,7 @@
     .graph {
         font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
         width:100%;
-        height:500px;
+        height:400px;
     }
 
 
@@ -135,6 +135,7 @@
 
     .svg_yt {
         font: 10px sans-serif;
+        height:100%;
     }
 
     .bar{
@@ -175,23 +176,22 @@
         display: flex;
         flex-flow: column;
         align-items: center;
-        height: 7rem;
+        height: 5rem;
         border: transparent;
-        margin: 2rem 0;
+        margin: 0.5rem 0;
         padding: 0.5rem;
         background-color:rgba(77, 77, 77, 0.264);
-        box-shadow: 0 4px 6px 0 rgba(50, 138, 175, 0.749);
+        box-shadow: 0 4px 6px 0 rgba(120, 120, 120, 0.749);
         border-radius: 0.4rem;
       }
       .selection-window .title{
         position: absolute;
-        padding: 0.1rem 0.5rem;
+        padding:  0 1rem;
         background: rgba(4, 42, 66, 0.75);
         transform: translate(0,-65%)
       }
       .selection-window .title p{
-        font-size: 1.2rem;
-        padding: 0.3rem;
+        font-size: 1rem;
         color: rgb(236, 225, 123);
         font-weight: 200;
       }
@@ -206,10 +206,12 @@
         height: 2rem;
         line-height: 2rem;
         padding-left: 2rem;
-        background-color: rgba(50, 138, 175, 0.749);
+        background-color: rgba(4, 42, 66, 0.65);
         color:rgb(255, 255, 255);
         font-size: 1.25rem;
       }
+
+      
 
 {% endblock %}
 
@@ -241,15 +243,21 @@
     </div>
     <div class = "text_layout">
         <h3 class = "graph_title">
-            Analysis of Publication Over Countries
+            Breif Analysis of Pie Chart
         </h3>
+        <div class = "text-paragraph">
+            <p id = "pie_analyze_text"></p>
+        </div>
     </div>
 </div>
 <div class="page_container">
     <div class = "text_layout">
         <div class = "graph_title">
-            <H3>Analysis of Publication Over Countries</H3>
+            <H3>Breif Analysis of Bar Chart</H3>
         </div>
+        <div class = "text-paragraph">
+                <p id = "bar_analyze_text"></p>
+            </div>
     </div>
     
     <div class = "graph_layout">
@@ -273,6 +281,9 @@
             <h3 class = "graph_title">
                 Analysis of Topic
             </h3>
+            <div class = "text-paragraph">
+                <p id = "bubble_analyze_text"></p>
+            </div>
         </div>
     </div>
 
@@ -281,7 +292,16 @@
     var windowWidth = window.innerWidth
     var countryData = {{countryList|safe}};
     var uniData = {{uniList|safe}}
-   
+
+    $(".container_high").css("height",(windowWidth/1.8).toString())
+
+    var country_analyze = "As you can see from the pie chart, the researchers in Unimelb CIS have cooperated with scholars from all over the world, and the proportion is close to 75% compared with the total published articles. Among them, the UK and the United States have the most cooperation, and China ranks third."
+    var university_analyze = "Our CIS researchers also have a lot of cooperation with other schools in Australia, mainly in Melbourne's local schools, such as Monash University, RMIT, Swingbourne, and of course the University of Queensland, the University of New South Wales. And the school itself cooperates with one third of each other."
+    var pub_trend_analyze ="The CIS department article shown in the figure shows the number of articles published every year since 1979. We can see that this number is basically increasing year by year, there is a low point in 2011, and then there is a more obvious downward trend after 2017."
+    var topic_analyze = "This figure shows the distribution of the topic of the CIS article based on topic modelling. We have divided 15 topics in total, each with corresponding hot words. We can see that the articles based on cloud computing, mobile, data security, sensor, clustering occupy the majority."
+    $("#pie_analyze_text").text(country_analyze)
+    $("#bar_analyze_text").text(pub_trend_analyze)
+    $("#bubble_analyze_text").text(topic_analyze)
 
     var svg_pie = d3.select("#PieChart")
 		.append("svg")
@@ -336,10 +356,12 @@
             var select = $("#pie_type_btns").val()
             if(select == "country"){
                 $("#pie_title").text("Pie Chart of Publication Over Countries")
+                $("#pie_analyze_text").text(country_analyze)
                 change(country);
                 
             }else if(select == "university"){
                 $("#pie_title").text("Pie Chart of Publication Over Autralia Univerities")
+                $("#pie_analyze_text").text(university_analyze)
                 change(uni);
             }
         });

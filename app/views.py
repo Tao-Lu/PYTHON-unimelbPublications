@@ -6,8 +6,10 @@ import couchdb
 import json
 
 #const params
+from unimelbPublications import settings
 
-BASE_URL = "http://45.113.234.42:5984/"
+VIEW = settings.VIEW
+COUCHDB = settings.COUCHDB
 COUNTRY_NUM = 15
 
 
@@ -28,7 +30,7 @@ def homepage(request):
 
 
 def authorOverview(request):
-    cisAuthorUrl = "http://45.113.234.42:5984/staffinfo_scopus/_design/search/_view/details"
+    cisAuthorUrl = VIEW + "/staffinfo_scopus/_design/search/_view/details"
     headers = {
         'Connection': 'close',
     }
@@ -69,10 +71,10 @@ def getTopList(List):
 
 def yearly_trend(request):
     # TODO: get overview data
-    couch = couchdb.Server("http://admin:password@45.113.234.42:5984")
+    couch = couchdb.Server(COUCHDB)
     
     # TODO: papers over countries
-    url = BASE_URL + "paperinfo_scopus/_design/match/_view/PaperCountByYear?group=true"
+    url = VIEW + "paperinfo_scopus/_design/match/_view/PaperCountByYear?group=true"
     headers = {
         'Connection': 'close',
     }
@@ -86,9 +88,9 @@ def yearly_trend(request):
 
 def research_network(request):
     # TODO: get overview data
-    couch = couchdb.Server("http://admin:password@45.113.234.42:5984")
-    url_a = BASE_URL + "staffinfo_scopus/_design/search/_view/searchByName"
-    url_l = BASE_URL + "allinfo_scopus/_design/relationship/_view/cisAuthorAndCisAuthor?group_level=2"
+    couch = couchdb.Server(COUCHDB)
+    url_a = VIEW + "staffinfo_scopus/_design/search/_view/searchByName"
+    url_l = VIEW + "allinfo_scopus/_design/relationship/_view/cisAuthorAndCisAuthor?group_level=2"
     headers = {
         'Connection': 'close',
     }
@@ -116,9 +118,9 @@ def research_network(request):
 
 def topic_overview(request):
     # TODO: get overview data
-    couch = couchdb.Server("http://admin:password@45.113.234.42:5984")
-    url_t = BASE_URL + "paperinfo_scopus/_design/match/_view/matchTopic?group=true"
-    url_k = BASE_URL + "paper_topic/_design/topics/_view/all_topic_keywords"
+    couch = couchdb.Server(COUCHDB)
+    url_t = VIEW + "paperinfo_scopus/_design/match/_view/matchTopic?group=true"
+    url_k = VIEW + "paper_topic/_design/topics/_view/all_topic_keywords"
     headers = {
         'Connection': 'close',
     }
@@ -136,24 +138,27 @@ def topic_overview(request):
         id = num['key']
         scoreMap[id] = num['value']
         topic_obj = {"name": id,"children": []}
-        graphData["children"].append(topic_obj)
+        graphData["children"].append({"name":id,"children":[]})
         
     for topic in keywordList:
         id = int(topic['id'])
         score = scoreMap[id]
+        keywords = ""
+    
         for keyword in topic['key']:
-            kw_obj = {"name": keyword, "size": score}
-            graphData["children"][id]["children"].append(kw_obj)
+            keywords += keyword+", "
+        kw_obj = {"name": keywords, "size": score}
+        graphData["children"][id]["children"].append(kw_obj)
 
 
     return JsonResponse(graphData, safe=False)
 
 def overview(request):
     # TODO: get overview data
-    couch = couchdb.Server("http://admin:password@45.113.234.42:5984")
+    couch = couchdb.Server(COUCHDB)
     
     # TODO: papers over countries
-    url = BASE_URL + "coauthorinfo_scopus/_design/countryCount/_view/countTotal?group=true&reduce=true"
+    url = VIEW + "coauthorinfo_scopus/_design/countryCount/_view/countTotal?group=true&reduce=true"
     headers = {
         'Connection': 'close',
     }
@@ -165,7 +170,7 @@ def overview(request):
     else:
         countryList = {}
 
-    url = BASE_URL + "coauthorinfo_scopus/_design/countryCount/_view/countAusUni?group=true"
+    url = VIEW + "coauthorinfo_scopus/_design/countryCount/_view/countAusUni?group=true"
     dataRaw = requests.get(url, headers=headers)
     data = dataRaw.json()
     if(data != None):
@@ -178,8 +183,8 @@ def overview(request):
 
 def authorcandidate (request, searchstr):
 
-    couch = couchdb.Server("http://admin:password@45.113.234.42:5984")
-    url = "http://45.113.234.42:5984/staffinfo_scopus/_design/search/_view/searchByName"
+    couch = couchdb.Server(COUCHDB)
+    url = VIEW + "/staffinfo_scopus/_design/search/_view/searchByName"
     db = couch['staffinfo_scopus']
     headers = {
         'Connection': 'close',
@@ -213,8 +218,7 @@ def authorcandidate (request, searchstr):
 
 # title, CIS author, year, all author, cited count, paper type, full abstract
 def paperDetails(request, searchStr):
-    couch = couchdb.Server("http://admin:password@45.113.234.42:5984")
-    # couch = couchdb.Server("http://admin:password@127.0.0.1:5984")
+    couch = couchdb.Server(COUCHDB)
     db = couch['paperinfo_scopus']
     paperdetails = db.get(searchStr)
 
@@ -229,7 +233,7 @@ def paperDetails(request, searchStr):
     paperdetailsDict['abstract'] = paperdetails['abstract']
     paperdetailsDict['keyword'] = paperdetails['keyword']
 
-    url = "http://45.113.234.42:5984/allinfo_scopus/_design/relationship/_view/nameMatch"
+    url = VIEW + "/allinfo_scopus/_design/relationship/_view/nameMatch"
 
     headers = {
         'Connection': 'close',
@@ -257,12 +261,13 @@ def paperDetails(request, searchStr):
 
 # name, orcid, email, staff type, paper count, cited count, paper list (title)
 def authorDetails(request, searchStr):
-    couch = couchdb.Server("http://admin:password@45.113.234.42:5984")
+    couch = couchdb.Server(COUCHDB)
     db = couch['staffinfo_scopus']
     authordetails = db.get(searchStr)
 
     # author details
     authordetailsDict = {}
+    authordetailsDict['imgpath'] = 'res/' + authordetails['_id'] + '.jpg'
     authordetailsDict['fullName'] = authordetails['fullName']
     authordetailsDict['orcid'] = authordetails['orcid']
     authordetailsDict['email'] = authordetails['email']
@@ -271,7 +276,7 @@ def authorDetails(request, searchStr):
     authordetailsDict['cited_by_count'] = authordetails['cited_by_count']
 
     # papers that belong to this author
-    paperListUrl = "http://45.113.234.42:5984/allinfo_scopus/_design/relationship/_view/cisAuthorPaper?key=%22" + searchStr + "%22"
+    paperListUrl = VIEW + "/allinfo_scopus/_design/relationship/_view/cisAuthorPaper?key=%22" + searchStr + "%22"
     headers = {
         'Connection': 'close',
     }
@@ -285,7 +290,7 @@ def authorDetails(request, searchStr):
     authordetailsDict['paperlist'] = idTitleList
 
     # co-authors that connect to this author
-    coAuthorListUrl = "http://45.113.234.42:5984/allinfo_scopus/_design/relationship/_view/cisAuthorAndAllAuthor?group_level=2&startkey=[%22" + searchStr + "%22]&endkey=[%22" + searchStr + "%22,{}]"
+    coAuthorListUrl = VIEW + "/allinfo_scopus/_design/relationship/_view/cisAuthorAndAllAuthor?group_level=2&startkey=[%22" + searchStr + "%22]&endkey=[%22" + searchStr + "%22,{}]"
     headers = {
         'Connection': 'close',
     }
@@ -293,7 +298,7 @@ def authorDetails(request, searchStr):
     coAuthorlistJson = coAuthorlist.json()['rows']
 
     # author id to name
-    url = "http://45.113.234.42:5984/allinfo_scopus/_design/relationship/_view/nameMatch"
+    url = VIEW + "/allinfo_scopus/_design/relationship/_view/nameMatch"
     headers = {
         'Connection': 'close',
     }
@@ -336,7 +341,7 @@ def authorDetails(request, searchStr):
 
 
 def coAuthorDetails(request, searchStr):
-    couch = couchdb.Server("http://admin:password@45.113.234.42:5984")
+    couch = couchdb.Server(COUCHDB)
     db = couch['coauthorinfo_scopus']
     coauthordetails = db.get(searchStr)
 
@@ -352,7 +357,7 @@ def coAuthorDetails(request, searchStr):
 
 def coAuthoredPapers(request, cisAuthorId, coAuthorId):
 
-    coauthoredpaperUrl = "http://45.113.234.42:5984/allinfo_scopus/_design/relationship/_view/cisAuthorAndAllAuthor?group_level=3&startkey=[%22" + cisAuthorId + "%22,%22" + coAuthorId + "%22,null]&endkey=[%22" + cisAuthorId + "%22,%22" + coAuthorId + "%22,{}]"
+    coauthoredpaperUrl = VIEW + "/allinfo_scopus/_design/relationship/_view/cisAuthorAndAllAuthor?group_level=3&startkey=[%22" + cisAuthorId + "%22,%22" + coAuthorId + "%22,null]&endkey=[%22" + cisAuthorId + "%22,%22" + coAuthorId + "%22,{}]"
     headers = {
         'Connection': 'close',
     }
@@ -362,11 +367,11 @@ def coAuthoredPapers(request, cisAuthorId, coAuthorId):
     for paper in coauthoredpaperListJson:
         coauthoredpaperIdList.append(paper['key'][2])
 
-    couch = couchdb.Server("http://admin:password@45.113.234.42:5984")
+    couch = couchdb.Server(COUCHDB)
     db = couch['staffinfo_scopus']
     coauthoredpaperinfoList = []
     for paperid in coauthoredpaperIdList:
-        idToPaperUrl = "http://45.113.234.42:5984/paperinfo_scopus/_design/match/_view/matchIdtoDetail?key=%22" + paperid + "%22"
+        idToPaperUrl = VIEW + "/paperinfo_scopus/_design/match/_view/matchIdtoDetail?key=%22" + paperid + "%22"
         paperinfo = requests.get(idToPaperUrl, headers=headers)
         paperinfoJson = paperinfo.json()['rows'][0]
 
@@ -393,8 +398,8 @@ def coAuthoredPapers(request, cisAuthorId, coAuthorId):
 
 
 def paperCandidate (request, searchstr):
-    paperUrl = "http://45.113.234.42:5984/paperinfo_scopus/_design/match/_view/matchTitle"
-    nameUrl = "http://45.113.234.42:5984/allinfo_scopus/_design/relationship/_view/nameMatch"
+    paperUrl = VIEW + "/paperinfo_scopus/_design/match/_view/matchTitle"
+    nameUrl = VIEW + "/allinfo_scopus/_design/relationship/_view/nameMatch"
     headers = {
         'Connection': 'close',
     }
@@ -437,9 +442,9 @@ def paperCandidate (request, searchstr):
 def searchKeywords(request,str):
     result = []
     keywords = str.split(',')
-    couch = couchdb.Server("http://admin:password@45.113.234.42:5984")
+    couch = couchdb.Server(COUCHDB)
     db = couch['paperinfo_scopus']
-    nameUrl = "http://45.113.234.42:5984/allinfo_scopus/_design/relationship/_view/nameMatch"
+    nameUrl = VIEW + "/allinfo_scopus/_design/relationship/_view/nameMatch"
     headers = {
         'Connection': 'close',
     }
@@ -448,7 +453,7 @@ def searchKeywords(request,str):
     dataNameRow = dataName["rows"]
     for word in keywords:
         searchWord = word.lower()
-        url = "http://45.113.234.42:5984/paperinfo_scopus/_design/match/_view/matchKeyWords?reduce=false&key=%22"+searchWord+"%22"
+        url = VIEW + "/paperinfo_scopus/_design/match/_view/matchKeyWords?reduce=false&key=%22"+searchWord+"%22"
 
         dataRawPaper = requests.get(url, headers=headers)
         dataPaper = dataRawPaper.json()
@@ -481,7 +486,7 @@ def searchKeywords(request,str):
 
 
 def recommmendedPapers(request, originalpaperId):
-    couch = couchdb.Server("http://admin:password@45.113.234.42:5984")
+    couch = couchdb.Server(COUCHDB)
     db = couch['paperinfo_scopus']
     paperdetails = db.get(originalpaperId)
     topicId = paperdetails['topic_ids'][0]
@@ -492,7 +497,7 @@ def recommmendedPapers(request, originalpaperId):
     }
     recommendedpaperidList = []
     for keyword in keywords:
-        recommendedPapersUrl = "http://45.113.234.42:5984/paperinfo_scopus/_design/match/_view/topicMatchKeyword?key=[" + str(
+        recommendedPapersUrl = VIEW + "/paperinfo_scopus/_design/match/_view/topicMatchKeyword?key=[" + str(
             topicId) + ",%22" + keyword + "%22]"
         topickeywordPapers = requests.get(recommendedPapersUrl, headers=headers)
         topickeywordPapersList = topickeywordPapers.json()['rows']
@@ -502,7 +507,7 @@ def recommmendedPapers(request, originalpaperId):
 
     recommendedpapersList = []
     for paperid in recommendedpaperidList:
-        idToPaperUrl = "http://45.113.234.42:5984/paperinfo_scopus/_design/match/_view/matchIdtoDetail?key=%22" + paperid + "%22"
+        idToPaperUrl = VIEW + "/paperinfo_scopus/_design/match/_view/matchIdtoDetail?key=%22" + paperid + "%22"
         paperinfo = requests.get(idToPaperUrl, headers=headers)
         paperinfoJson = paperinfo.json()['rows'][0]
 

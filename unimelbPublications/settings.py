@@ -123,3 +123,7 @@ STATICFILES_DIRS = (
     os.path.join(BASE_DIR, 'app/static/'),
 )
 
+
+VIEW = "http://45.113.234.42:5984/"
+COUCHDB = "http://admin:password@45.113.234.42:5984"
+

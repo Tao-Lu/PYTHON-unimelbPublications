@@ -25,7 +25,7 @@
 
     <div class="container">
         <div class="row">
-            <div id="authorDetails" style="padding: 10px; margin-top: 10px;" class="col-md-4">
+            <div id="authorDetails" style="padding: 10px; margin-top: 10px;" class="col-md-6">
 
                 <h2 id="name">
                     <b>{{authordetailsDict.fullName}}</b>
@@ -47,9 +47,11 @@
                 </h4>
             </div>
 
-            <div id="authorRelationship" class="col-md-8" style="margin-top: 10px;">
+            <div id="authorRelationship" class="col-md-6" style="margin-top: 10px;">
 
-{#                <img src="{% static 'res/background.jpg' %}" style="height: auto; max-width: 100%" class="img-responsive"/>#}
+                <img src="{% static authordetailsDict.imgpath %}" onerror="this.onerror=null;this.src='{% static "res/noimage.png" %}';" style="margin-top:30px;width: 200px
+; height: auto; text-align: center"/>
+
             </div>
 
         </div>
