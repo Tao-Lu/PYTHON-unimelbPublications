@@ -3,6 +3,8 @@
 # name, email, staff type
 {% block css %}
     .pointer {cursor: pointer;}
+    .clickable{cursor:pointer}
+    .clickable:hover {text-decoration: underline; cursor: pointer; color:blue;}
 {% endblock %}
 {% block content %}
     <h2 style="margin-left:65px"> search result for : {{ searchstr}}</h2>
@@ -18,7 +20,7 @@
     <tbody id="tbodyDataRow">
         {% for dic in res.values%}
         <tr class="dataRow" id={{ dic.id }}>
-            <td class="pointer">{{ dic.name }}</td>
+            <td class="pointer clickable">{{ dic.name }}</td>
             <td>{{ dic.staffType}}</td>
             <td>{{ dic.email}}</td>
         </tr>

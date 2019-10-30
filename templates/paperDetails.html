@@ -2,14 +2,18 @@
 # content for paper details
 # title, year, CIS author, all author, cited count, paper type, full abstract
 {% block css %}
-    .clickable:hover {text-decoration: underline; cursor: pointer; color:blue; font-weight:bold}
+    .clickable:hover {text-decoration: underline; cursor: pointer; color:blue;}
+    #title {text-decoration: underline;}
+     h2 {
+  line-height: 1.45;
+}
 {% endblock %}
 
 {% block content %}
 
     <title>Paper Details</title>
 
-    <div id="paperDetails" style="margin: 10px; padding: 10px;">
+    <div id="paperDetails" style="margin: 10px; padding: 10px; margin-left: 60px" class="col-md-10">
 
         <h2 id="title">
             {{paperdetailsDict.title}}
@@ -25,8 +29,8 @@
                 {% for cisAuthor in paperdetailsDict.CISAuthors %}
                     <!--can be clicked-->
 {#                    <li style="display: inline-block">#}
-                    <li class="cisauthor clickable" id={{ cisAuthor.id }}>
-                        {{ cisAuthor.name }}
+                    <li class="cisauthor" id={{ cisAuthor.id }}>
+                        <span class="clickable">{{ cisAuthor.name }}</span>
                     </li>
                 {% endfor %}
             </ul>
