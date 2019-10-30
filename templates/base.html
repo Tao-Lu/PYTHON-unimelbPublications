@@ -10,19 +10,43 @@
     <link rel="stylesheet" href="{% static 'css/dataTables.bootstrap4.min.css' %}">
     <link rel="stylesheet" href="{% static 'css/jquery.tag-editor.css' %}">
     <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
-
+    
+    
+    <script src="{% static 'js/jquery-3.3.1.js' %}"></script>
+    <script src="{% static 'js/jquery.dataTables.min.js' %}"></script>
+    <script src="{% static 'js/jquery.tag-editor.js' %}"></script>
+    <script src="{% static 'js/jquery.tag-editor.min.js' %}"></script>
     <script src="{% static 'js/bootstrap.js' %}"></script>
     <script src="{% static 'js/bootstrap.bundle.js' %}"></script>
     <script src="{% static 'js/dataTables.bootstrap4.min.js' %}"></script>
-    <script src="{% static 'js/jquery-3.3.1.js' %}"></script>
-    <script src="{% static 'js/jquery.dataTables.min.js' %}"></script>
-    <script src="{% static 'js/jquery.caret.min.js' %}"></script>
-    <script src="{% static 'js/jquery.tag-editor.js' %}"></script>
-    <script src="{% static 'js/jquery.tag-editor.min.js' %}"></script>
+
     
     {% block src %}{% endblock src %}
 
     <style>
+
+        #navnavnav[data-fixed="fixed"]{
+            position: fixed;
+            top:0;
+            left: 0;
+            z-index: 1;
+            width: 100%;
+        }
+
+#searchDiv{
+    display: flex;
+    width:20rem;
+    height: 2.1rem;
+    margin-right: 1rem;
+    background: white;
+}
+#searchBox{
+    align-content: start;
+    height: 100%;
+    width: 100%;
+}
+
+
         {% block css %}{% endblock %}
 
     </style>
@@ -38,43 +62,52 @@
     <span class="navbar-toggler-icon"></span>
   </button>
 
-  <div class="collapse navbar-collapse" id="navbarColor01">
-    <ul class="navbar-nav mr-auto">
-      <li class="nav-item">
-        <a class="nav-link" href="#">Overview </a>
-      </li>
-      <li class="nav-item">
-        <a class="nav-link" href="#">Authors</a>
-      </li>
-      <li class="nav-item">
-        <a class="nav-link" href="#">Topics</a>
-      </li>
-      <li class="nav-item">
-        <a class="nav-link" href="#">About</a>
-      </li>
-    </ul>
-    <form class="form-inline my-2 my-lg-0">
-        <select class="browser-default custom-select input-group-sm" id="searchSelect" >
-        <option selected>search by</option>
-            <option value="author">Author</option>
-            <option value="title">Title</option>
-            <option value="keywords">Keywords</option>
-        </select>
+        <div class="collapse navbar-collapse" id="navbarColor01">
+            <ul class="navbar-nav mr-auto">
+                <li class="nav-item">
+                    <a class="nav-link navLink" id="overview" href="#">Overview </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link navLink" id="authors" href="#">Authors</a>
+                </li>
+{#                <li class="nav-item">#}
+{#                    <a class="nav-link " href="#">Topics</a>#}
+{#                </li>#}
+                <li class="nav-item">
+                    <a class="nav-link navLink" id="about" href="#">About</a>
+                </li>
+            </ul>
+            <form class="form-inline my-2 my-lg-0">
+                <select class="browser-default custom-select input-group-sm" id="searchSelect" >
+                    <option selected>search by</option>
+                    <option value="author">Author</option>
+                    <option value="title">Title</option>
+                    <option value="keywords">Keywords</option>
+                </select>
+                <div  id="searchDiv">
+                    <input class=" mr-sm-2" type="text" placeholder="Search" id="searchBox">
+                </div>
 
+                <button class="btn btn-secondary my-2 my-sm-0" type="button" id="searchdb">Search</button>
 
-        <input class="form-control mr-sm-2" type="text" placeholder="Search" id="searchBox">
+            </form>
+        </div>
+    </nav>
 
-        <button class="btn btn-secondary my-2 my-sm-0" type="button" id="searchdb">Search</button>
-
-    </form>
-  </div>
-</nav>
-
-            {% block content %}{% endblock %}
+    {% block content %}{% endblock %}
 
 </body>
 
 <script>
+
+
+    var obj = document.getElementById("navnavnav");
+    var ot = obj.offsetTop;
+    document.onscroll = function () {
+        var st = document.body.scrollTop || document.documentElement.scrollTop;
+        obj.setAttribute("data-fixed",st >= ot?"fixed":"")
+    }
+
     $('#searchdb').on('click',function(){
        var searchKey = document.getElementById("searchBox").value;
        var searchBy = document.getElementById("searchSelect").value;
@@ -106,12 +139,38 @@
         var searchBy = document.getElementById("searchSelect").value;
         if (searchBy == 'keywords'){
             $('input').tagEditor({
-                placeholder:"Please enter keywords and follow by enter."
+                placeholder: "please enter some keywords"
             });
+
         }else{
+
             $('input').tagEditor('destroy');
         }
     });
+
+    $('.navLink').on('click',function () {
+        var clickedItem = $(this).attr('id');
+        var host = location.host;
+
+        if(clickedItem == "pubanalysis"){
+            var url = "http://"+host+"/homepage/";
+            window.location.href = url;
+
+        } else if(clickedItem == "overview"){
+            var url = "http://"+host+"/overview/";
+            window.location.href = url;
+
+        } else if(clickedItem == "authors"){
+            var url = "http://"+host+"/authorOverview/";
+            window.location.href = url;
+
+        } else if(clickedItem == "about"){
+            var url = "http://"+host+"/aboutUs/";
+            window.location.href = url;
+
+        }
+    });
+
 
 
 

@@ -8,13 +8,24 @@
     .clickable:hover {text-decoration: underline; cursor: pointer; color:blue; font-weight:bold}
 
 {% endblock %}
+
+{% block src %}
+        <script src="{% static 'js/d3.v3.min.js' %}"></script>
+        <script src="{% static 'js/d3.layout.js' %}"></script>
+        <script src="{% static 'js/d3.geom.js' %}"></script>
+        <script src="{% static 'js/detector.js' %}"></script>
+        <script src="{% static 'js/CodeFlower.js' %}"></script>
+        <link rel="stylesheet" href="{% static 'css/style.css' %}">
+
+{% endblock src %}
+
 {% block content %}
 
     <title>Author Details</title>
 
     <div class="container">
         <div class="row">
-            <div id="authorDetails" style="padding: 10px; border-right: 2px dotted #000; border-style: solid; border-color: black; border-width: 10px" class="col-md-6">
+            <div id="authorDetails" style="padding: 10px; margin-top: 10px;" class="col-md-4">
 
                 <h2 id="name">
                     {{authordetailsDict.fullName}}
@@ -35,10 +46,16 @@
                     Cited By Count: {{authordetailsDict.cited_by_count}}
                 </h4>
             </div>
-            <div id="authorRelationship" style="padding: 10px; border-left: 2px dotted #000;" class="col-md-6">
-                <img src="{% static 'res/background.jpg' %}" style="height: auto; max-width: 100%" class="img-responsive"/>
+
+            <div id="authorRelationship" class="col-md-8" style="margin-top: 10px;">
+
+{#                <img src="{% static 'res/background.jpg' %}" style="height: auto; max-width: 100%" class="img-responsive"/>#}
             </div>
+
         </div>
+    <br>
+    <hr style="background-color: black; height: 2px;">
+    <br>
         <div class="row">
             <div class="col-md-12">
                 <h2 style="margin-top:40px">Documents List</h2>
@@ -94,7 +111,7 @@
             window.location.href = url;
         });
 
-        {#jump to coAuthorDetails, but some coauthors do not have records#}
+
         $('#coauthorlist').DataTable();
         {#$('#coauthorlist_paginate').hide();#}
         $('#tbodyCoauthor').on('click', '.coauthorName', function () {
@@ -104,11 +121,10 @@
             console.log(authorType);
 
             var host = location.host;
-            if(authorType == "Y"){
+            if (authorType == "Y") {
                 var url = "http://" + host + "/authorDetails/" + coauthorId;
                 window.location.href = url;
-            }
-            else{
+            } else {
                 var url = "http://" + host + "/coAuthorDetails/" + coauthorId;
                 window.location.href = url;
             }
@@ -119,7 +135,7 @@
         $('#tbodyCoauthor').on('click', '.coauthorPaper', function () {
             var coauthorId = $(this).closest('tr').attr('id');
             var cisauthorId = location.href.split('/');
-            cisauthorId = cisauthorId[cisauthorId.length-1];
+            cisauthorId = cisauthorId[cisauthorId.length - 1];
             console.log(coauthorId);
             console.log(cisauthorId);
             var host = location.host;
@@ -127,7 +143,34 @@
             window.location.href = url;
         });
 
+        {#code flower#}
+        {#var coauthorList = {{ authordetailsDict.coauthorlist | safe}};#}
+        {#var children = [];#}
+        {#for (var i in coauthorList) {#}
+        {#    children.push({"name": coauthorList[i]["name"], "size": coauthorList[i]["papercount"]});}#}
+        {#var authorName = "{{authordetailsDict.fullName | safe}}";#}
+        {#var jsonData = {"name": authorName, "children": children};#}
+        {##}
+        {#var height = document.getElementById("authorRelationship").offsetHeight;#}
+        {#var width = document.getElementById("authorRelationship").offsetWidth;#}
+        {##}
+        {#var myFlower = new CodeFlower("#authorRelationship", width, height);#}
+        {#myFlower.update(jsonData);#}
+
+        {#lian xi tu#}
+    {#    var svg = d3.select('#authorRelationship')#}
+    {#    .append("svg")#}
+    {#    .attr("class","svg_ov");#}
+    {##}
+    {#d3.json({{authordetailsDict.jsonData | safe}}, function(error, graph) {#}
+    {#    if (!error) {#}
+    {#        createV4SelectableForceDirectedGraph(svg, graph);#}
+    {#    } else {#}
+    {#        console.error(error);#}
+    {#    }    });#}
+
     });
+
 
 
 

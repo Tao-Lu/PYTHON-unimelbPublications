@@ -26,32 +26,57 @@ return redirect("https://blog.csdn.net/miaoqinian")
 def homepage(request):
     return render(request, 'homePage.html')
 
+
+def authorOverview(request):
+    cisAuthorUrl = "http://45.113.234.42:5984/staffinfo_scopus/_design/search/_view/details"
+    headers = {
+        'Connection': 'close',
+    }
+    cisAuthors = requests.get(cisAuthorUrl, headers=headers)
+    cisAuthorsList = cisAuthors.json()['rows']
+
+    cisAuthorDictList = []
+    for cisauthor in cisAuthorsList:
+        cisAuthorDict = {"id": cisauthor['key'], "name": cisauthor['value'][0], "staffType": cisauthor['value'][1],
+                         "email": cisauthor['value'][2], "documentCounts": cisauthor['value'][3],
+                         "citedCounts": cisauthor['value'][4]}
+        cisAuthorDictList.append(cisAuthorDict)
+
+    return render(request, 'authorOverview.html', {"cisAuthorDictList": cisAuthorDictList})
+
+
+def aboutUs(request):
+    return render(request, 'aboutUs.html')
+
 #Utility Function for Overview:
 
-def getCountryList(countryList):
-    if(len(countryList) < COUNTRY_NUM):
+
+
+
+def getTopList(List):
+    if(len(List) < COUNTRY_NUM):
         return countryList
     else:
-        countryList.sort(key=lambda x: x["value"], reverse=True)
-        rest = countryList[COUNTRY_NUM:]
-        topCountry = countryList[0:COUNTRY_NUM]
+        List.sort(key=lambda x: x["value"], reverse=True)
+        rest = List[COUNTRY_NUM:]
+        topList = List[0:COUNTRY_NUM]
         otherTotal = 0
         for i in rest:
             otherTotal += i["value"]
-        topCountry.append({"key":"Others","value":otherTotal})
-        countryList = topCountry
-        return countryList
+        topList.append({"key":"Others","value":otherTotal})
+        List = topList
+        return List
 
 def yearly_trend(request):
     # TODO: get overview data
     couch = couchdb.Server("http://admin:password@45.113.234.42:5984")
     
     # TODO: papers over countries
-    url_country = BASE_URL + "paperinfo_scopus/_design/match/_view/PaperCountByYear?group=true"
+    url = BASE_URL + "paperinfo_scopus/_design/match/_view/PaperCountByYear?group=true"
     headers = {
         'Connection': 'close',
     }
-    dataRaw = requests.get(url_country, headers=headers)
+    dataRaw = requests.get(url, headers=headers)
     data = dataRaw.json()
     if(data != None):
         countryList = data['rows']
@@ -60,31 +85,96 @@ def yearly_trend(request):
     return JsonResponse(countryList, safe=False)
 
 def research_network(request):
-    with open("app/static/res/test.json",'r') as jsonfile:
-        data = json.load(jsonfile)
-        print(data['nodes'])
+    # TODO: get overview data
+    couch = couchdb.Server("http://admin:password@45.113.234.42:5984")
+    url_a = BASE_URL + "staffinfo_scopus/_design/search/_view/searchByName"
+    url_l = BASE_URL + "allinfo_scopus/_design/relationship/_view/cisAuthorAndCisAuthor?group_level=2"
+    headers = {
+        'Connection': 'close',
+    }
+    dataRaw_a = requests.get(url_a, headers=headers)
+    dataRaw_l = requests.get(url_l, headers=headers)
+
+    authorList = dataRaw_a.json()["rows"]
+    authorlinks = dataRaw_l.json()["rows"]
+    graphData = {}
+    author_dict = {}
+    graphData["nodes"] = list()
+    graphData["links"] = list()
+
+    for author in authorList:
+        author_dict[author['key']] = author['id']
+        graphData["nodes"].append({"id": author['id'],"name":author['key'], "group": 1})
+    
+    for link in authorlinks:
+        link_obj = {"source": link['key'][0], "target": link['key'][1], "value": link['value']}
+        graphData["links"].append(link_obj)
 
 
-    return JsonResponse(data, safe=False)
+
+    return JsonResponse(graphData, safe=False)
+
+def topic_overview(request):
+    # TODO: get overview data
+    couch = couchdb.Server("http://admin:password@45.113.234.42:5984")
+    url_t = BASE_URL + "paperinfo_scopus/_design/match/_view/matchTopic?group=true"
+    url_k = BASE_URL + "paper_topic/_design/topics/_view/all_topic_keywords"
+    headers = {
+        'Connection': 'close',
+    }
+    dataRaw_t = requests.get(url_t, headers=headers)
+    dataRaw_k = requests.get(url_k, headers=headers)
+
+    topicNumList = dataRaw_t.json()["rows"]
+    keywordList = dataRaw_k.json()["rows"]
+
+    graphData = {}
+    graphData["name"] = "topics"
+    graphData["children"] = list()
+    scoreMap = {}
+    for num in topicNumList:
+        id = num['key']
+        scoreMap[id] = num['value']
+        topic_obj = {"name": id,"children": []}
+        graphData["children"].append(topic_obj)
+        
+    for topic in keywordList:
+        id = int(topic['id'])
+        score = scoreMap[id]
+        for keyword in topic['key']:
+            kw_obj = {"name": keyword, "size": score}
+            graphData["children"][id]["children"].append(kw_obj)
+
+
+    return JsonResponse(graphData, safe=False)
 
 def overview(request):
     # TODO: get overview data
     couch = couchdb.Server("http://admin:password@45.113.234.42:5984")
     
     # TODO: papers over countries
-    url_country = BASE_URL + "coauthorinfo_scopus/_design/countryCount/_view/countTotal?group=true&reduce=true"
+    url = BASE_URL + "coauthorinfo_scopus/_design/countryCount/_view/countTotal?group=true&reduce=true"
     headers = {
         'Connection': 'close',
     }
-    dataRaw = requests.get(url_country, headers=headers)
+    dataRaw = requests.get(url, headers=headers)
     data = dataRaw.json()
     if(data != None):
         countryList = data['rows']
-        countryList = getCountryList(countryList)
+        countryList = getTopList(countryList)
     else:
         countryList = {}
 
-    return render(request, 'overview.html',{'countryList': countryList})
+    url = BASE_URL + "coauthorinfo_scopus/_design/countryCount/_view/countAusUni?group=true"
+    dataRaw = requests.get(url, headers=headers)
+    data = dataRaw.json()
+    if(data != None):
+        uniList = data['rows']
+        uniList = getTopList(uniList)
+    else:
+        uniList = {}
+
+    return render(request, 'overview.html',{'countryList': countryList,'uniList':uniList})
 
 def authorcandidate (request, searchstr):
 
@@ -137,6 +227,7 @@ def paperDetails(request, searchStr):
     paperdetailsDict['cite_count'] = paperdetails['cite_count']
     paperdetailsDict['paper_type'] = paperdetails['paper_type']
     paperdetailsDict['abstract'] = paperdetails['abstract']
+    paperdetailsDict['keyword'] = paperdetails['keyword']
 
     url = "http://45.113.234.42:5984/allinfo_scopus/_design/relationship/_view/nameMatch"
 
@@ -156,7 +247,7 @@ def paperDetails(request, searchStr):
     for coauthorId in paperdetailsDict['co_author']:
         for coauthor in authorIdToNameJson:
             if coauthorId == coauthor['key']:
-                coauthorIdName.append({"id": coauthorId, "name": coauthor['value'][0]})
+                coauthorIdName.append({"id": coauthorId, "name": coauthor['value'][0], "authorType": coauthor['value'][1]})
 
     paperdetailsDict['CISAuthors'] = authorIdName
     paperdetailsDict['co_author'] = coauthorIdName
@@ -218,6 +309,29 @@ def authorDetails(request, searchStr):
 
     authordetailsDict['coauthorlist'] = idCoauthoredList
 
+    ########################################
+
+    nodes = []
+    links = []
+    totalCountsPaper = 0
+    for co_author in idCoauthoredList:
+        totalCountsPaper += co_author['papercount']
+        nodes.append({"id": co_author["name"], "paperCounts": co_author["papercount"],  "group": 1},)
+    nodes.append({"id": authordetails['fullName'], "paperCounts": totalCountsPaper, "group": 1}, )
+
+    for i in range(0, len(nodes)-1):
+        links.append({"source": nodes[i]["id"], "target": nodes[-1]["id"], "value": nodes[i]["paperCounts"]})
+
+    jsonData = {"nodes": nodes, "links": links}
+
+    authordetailsDict["jsonData"] = jsonData
+
+
+
+
+
+    ##########################################
+
     return render(request, 'authorDetails.html', {'authordetailsDict': authordetailsDict})
 
 
@@ -263,6 +377,8 @@ def coAuthoredPapers(request, cisAuthorId, coAuthorId):
         paperinfoDict['year'] = paperinfoJson['value'][2]
         paperinfoDict['abstract'] = paperinfoJson['value'][3]
         paperinfoDict['paperType'] = paperinfoJson['value'][4]
+        paperinfoDict['keyword'] = paperinfoJson['value'][5]
+
 
         cisAuthorList = paperinfoDict['cisAuthors'].split(',')
         cisAuthorsDetails = []
@@ -317,6 +433,7 @@ def paperCandidate (request, searchstr):
 
     return render(request, 'paperCandidate.html', {'res': result, 'searchstr': searchstr,'size':len(result)})
 
+
 def searchKeywords(request,str):
     result = []
     keywords = str.split(',')
@@ -361,13 +478,6 @@ def searchKeywords(request,str):
             result.append(paperinfo)
 
     return render(request, 'paperCandidate.html', {'res': result, 'searchstr': str, 'size': len(result)})
-
-
-
-
-
-
-
 
 
 def recommmendedPapers(request, originalpaperId):

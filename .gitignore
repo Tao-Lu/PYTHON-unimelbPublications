@@ -1,4 +1,6 @@
 
 unimelbPublications/__pycache__/
+venv/
 app/__pycache__/
+venv/
 *.pyc
