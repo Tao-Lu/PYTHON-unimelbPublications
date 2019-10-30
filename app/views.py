@@ -418,6 +418,7 @@ def paperCandidate (request, searchstr):
             paperinfo['abstract'] = row['value'][3]
             paperinfo['CisAuthor'] = []
             paperinfo['type'] = row['value'][4]
+            paperinfo['keyword'] = row['value'][5]
             paperinfo['title'].replace('"','')
             paperinfo['title'].replace('#','')
             paperinfo['title'].replace('\\','')

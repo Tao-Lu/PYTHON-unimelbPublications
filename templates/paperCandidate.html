@@ -6,6 +6,13 @@
     .paperResult{
         text-decoration: underline;
     }
+    .keyword {cursor:pointer;}
+    .keyword:hover{color:#000080}
+    .clickable{cursor:pointer}
+    .clickable:hover {text-decoration: underline; cursor: pointer; color:#000080;}
+     h3 {
+  line-height: 1.45;
+}
 
 
 {% endblock %}
@@ -16,7 +23,7 @@
         <hr>
         <div class="search-result col-md-10" style="margin-left:80px">
             {% for item in res %}
-                <h3 class="paperResult pointer" style="margin-top: 10px" id={{ item.id }}>{{ item.title }}</h3>
+                <h3 class="paperResult" style="margin-top: 10px" id={{ item.id }}><span class="clickable pointer">{{ item.title }}</span></h3>
                 <h5 style="margin-top:5px">{{ item.year }}</h5>
 
                 <p><b>CIS Authors:</b>
@@ -26,11 +33,14 @@
                         {% endfor %}
                         </p>
 
-                <h5>Abstract:</h5>
+                <h5><b>Abstract:</b></h5>
                 <p style="margin-bottom: 20px">{{ item.abstract }}...</p>
                 <h6 style="margin-top:10px">
+
                     {% for word in item.keyword %}
-                        <span class="badge badge-pill badge-success">{{word}}</span>
+
+                        <span class="badge badge-pill keyword" id={{ word }}>{{word}}</span>
+
                     {% endfor %}
                 </h6>
                 <h5 style="margin-bottom: 30px"><span class="badge badge-pill badge-dark">{{ item.type }}</span></h5>
@@ -55,6 +65,30 @@
             var url = "http://"+host+"/authorDetails/"+personId;
             window.location.href = url;
         });
+
+        $('.keyword').on('click',function(){
+            var searchTerm = $(this).attr('id');
+            var host = location.host;
+            var url = "http://"+host+"/keywordsCandidate/"+searchTerm;
+            window.location.href = url;
+        });
+        $(document).ready(function(){
+            var keywordBubble = document.getElementsByClassName('keyword');
+            for (var i = 0; i< keywordBubble.length; i++){
+                var j = i%3;
+                if (j ==0 ){
+                    keywordBubble[i].classList.add('badge-success');
+                }
+                if (j ==1){
+                    keywordBubble[i].classList.add('badge-primary');
+                }
+                if (j ==2){
+                    keywordBubble[i].classList.add('badge-info');
+                }
+
+            }
+        });
+
 
     </script>
 {% endblock %}
