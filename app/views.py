@@ -305,7 +305,7 @@ def authorDetails(request, searchStr):
         coauthorId = coauthor['key'][1]
         for author in authorIdToNameJson:
             if coauthorId == author['key']:
-                idCoauthoredList.append({"id": coauthor['key'][1], "name":  author['value'][0], "papercount": coauthor['value'], "authorType": author['value'][1]})
+                idCoauthoredList.append({"id": coauthor['key'][1], "name":  author['value'][0], "papercount": coauthor['value'], "authorType": author['value'][1],"affiliation":author['value'][2],"country":author['value'][3]})
 
     authordetailsDict['coauthorlist'] = idCoauthoredList
 

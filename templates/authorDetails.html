@@ -79,6 +79,8 @@
                         <tr>
                             <th>Co-Authors</th>
                             <th>Co-Authored Documents</th>
+                            <th>Affiliation</th>
+                            <th>Country</th>
                         </tr>
                     </thead>
                     <tbody id="tbodyCoauthor">
@@ -87,6 +89,8 @@
                             <tr class="coauthor" id={{ coauthor.id }} cis={{ coauthor.authorType }}>
                                 <td class="coauthorName clickable">{{ coauthor.name }}</td>
                                 <td class="coauthorPaper clickable">{{ coauthor.papercount }}</td>
+                                <td>{{ coauthor.affiliation }}</td>
+                                <td>{{ coauthor.country }}</td>
 {#                                <td class="pointer">{{ coauthor.name }}</td>#}
 {#                                <td class="pointer">{{ coauthor.papercount }}</td>#}
                             </tr>
