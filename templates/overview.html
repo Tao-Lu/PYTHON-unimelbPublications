@@ -236,7 +236,7 @@
     </div>
     <div class = "graph_layout" id = "Pie_Chart">
         <h3 class = "graph_title" id = "pie_title">
-            Pie Chart of Publication Over Countries
+            Pie Chart by Co-Authors Number Over Countries
         </h3>
         <div class = "graph" id = "PieChart">
         </div>
@@ -355,12 +355,12 @@
     $("#pie_type_btns").change(function(){
             var select = $("#pie_type_btns").val()
             if(select == "country"){
-                $("#pie_title").text("Pie Chart of Publication Over Countries")
+                $("#pie_title").text("Pie Chart by Co-Authors Number Over Countries")
                 $("#pie_analyze_text").text(country_analyze)
                 change(country);
                 
             }else if(select == "university"){
-                $("#pie_title").text("Pie Chart of Publication Over Autralia Univerities")
+                $("#pie_title").text("Pie Chart by Co-Authors Number Over Autralia Univerities")
                 $("#pie_analyze_text").text(university_analyze)
                 change(uni);
             }
